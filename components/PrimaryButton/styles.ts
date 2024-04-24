@@ -1,0 +1,14 @@
+import { StyleSheet } from "react-native";
+
+export const styles = StyleSheet.create({
+  buttonStyle: {
+    backgroundColor: "#417BD1",
+    borderColor: "transparent",
+    borderWidth: 0,
+    borderRadius: 16,
+  },
+  containerStyle: {
+    width: 150,
+    height: 40,
+  },
+});
