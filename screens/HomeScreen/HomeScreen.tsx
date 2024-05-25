@@ -6,6 +6,7 @@ import { View, Text } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import CustomCard from "../../components/ApartmentCard/ApartmentCard";
+import { useNavigation } from "@react-navigation/native";
 
 const HomeScreen: React.FC = () => {
   const [region, setRegion] = useState({
@@ -37,6 +38,8 @@ const HomeScreen: React.FC = () => {
 
   const snapPoints = useMemo(() => ["7%", "91%"], []);
 
+  const navigation = useNavigation();
+
   return (
     <View style={{ flex: 1 }}>
       <Navigation />
@@ -54,7 +57,7 @@ const HomeScreen: React.FC = () => {
         <BottomSheetScrollView
           contentContainerStyle={{ alignItems: "center", marginBottom: 20 }}
         >
-          <Text style={{ marginBottom: 15 }}>Idiots scroll this up!</Text>
+          <Text style={{ marginBottom: 15 }}>Over 1,000 appartments!</Text>
           <CustomCard />
           <CustomCard />
           <CustomCard />

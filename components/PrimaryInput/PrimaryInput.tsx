@@ -9,6 +9,7 @@ const PrimaryInput: React.FC<InputProps> = ({ ...props }) => {
       inputContainerStyle={styles.inputContainerStyle}
       inputStyle={styles.inputStyle}
       leftIconContainerStyle={styles.iconStyle}
+      labelStyle={{ marginLeft: 15 }}
       {...props}
     />
   );

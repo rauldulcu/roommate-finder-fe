@@ -3,9 +3,12 @@ import { View, Image } from "react-native";
 import { styles } from "./styles";
 import { Text } from "@rneui/themed";
 import { PrimaryButton } from "../../components";
-import { NavigationProps } from "../../types";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { StackParamList } from "../../App";
 
-const WelcomeScreen: React.FC<NavigationProps> = ({ navigation }) => {
+const WelcomeScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
+
   return (
     <View style={styles.container}>
       <Image

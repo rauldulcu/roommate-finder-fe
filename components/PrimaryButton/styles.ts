@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   buttonStyle: {
-    backgroundColor: "#417BD1",
+    backgroundColor: "#03045E",
     borderColor: "transparent",
     borderWidth: 0,
     borderRadius: 16,

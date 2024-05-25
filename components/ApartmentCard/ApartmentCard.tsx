@@ -1,8 +1,13 @@
 import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 import { Card, Icon } from "@rneui/base";
+import PrimaryButton from "../PrimaryButton";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { StackParamList } from "../../App";
 
 const CustomCard: React.FC = () => {
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
+
   return (
     <Card containerStyle={styles.cardContainer}>
       <Image
@@ -17,15 +22,19 @@ const CustomCard: React.FC = () => {
           2 Bedrooms, 2695 Sq.Ft. Apartment in Mohali Sector 82
         </Text>
         <View style={styles.rentInfo}>
-          <Text style={styles.rentText}>2BHK Flat to Rent: </Text>
+          <Text style={styles.rentText}>Price: </Text>
           <Text style={styles.rentPrice}>₹20,000/month</Text>
         </View>
       </View>
       <Icon
         name="bookmark-outline" // Change to the bookmark icon you have
         type="material" // This is just an example, adjust based on the icon set you use
-        color="#000"
+        color="#fff"
         containerStyle={styles.bookmarkIcon}
+      />
+      <PrimaryButton
+        title={"Press me"}
+        onPress={() => navigation.navigate("ApartmentInfo")}
       />
     </Card>
   );

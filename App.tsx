@@ -1,11 +1,25 @@
 import { StyleSheet, Text, View } from "react-native";
-import { HomeScreen, LoginScreen, WelcomeScreen } from "./screens";
+import {
+  HomeScreen,
+  LoginScreen,
+  RegisterScreen,
+  WelcomeScreen,
+} from "./screens";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import PropertyDetailScreen from "./screens/ApartmentInfoScreen/ApartmentInfoScreen";
 
-const Stack = createNativeStackNavigator();
+export type StackParamList = {
+  Welcome: undefined;
+  Home: undefined;
+  Login: undefined;
+  Register: undefined;
+  ApartmentInfo: { param1: string } | undefined;
+};
+
+const Stack = createNativeStackNavigator<StackParamList>();
 
 export default function App() {
   return (
@@ -28,17 +42,18 @@ export default function App() {
             name="Login"
             component={LoginScreen}
           />
+          <Stack.Screen
+            options={{ headerShown: false }}
+            name="Register"
+            component={RegisterScreen}
+          />
+          <Stack.Screen
+            options={{ headerShown: false }}
+            name="ApartmentInfo"
+            component={PropertyDetailScreen}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

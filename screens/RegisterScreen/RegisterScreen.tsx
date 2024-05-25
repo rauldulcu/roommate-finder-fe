@@ -1,50 +1,58 @@
 import React, { useState } from "react";
 import { View, Image } from "react-native";
-import { Button, Text } from "@rneui/themed";
+import { Button, Input, Text } from "@rneui/themed";
 import { PrimaryButton, PrimaryInput } from "../../components";
 import { NavigationProps } from "../../types";
 import { styles } from "./styles";
 
-const LoginScreen: React.FC<NavigationProps> = ({ navigation }) => {
+const RegisterScreen: React.FC<NavigationProps> = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
 
   return (
     <View style={styles.container}>
-      <Image
-        source={require("../../assets/welcomeIcon.png")} // Replace with your local image path
-        style={styles.logo}
-      />
       <Text h3 style={styles.loginTitle}>
-        Login
+        Tell us about yourself
       </Text>
       <PrimaryInput
-        placeholder="Mobile Number*"
-        leftIcon={{ type: "font-awesome", name: "phone" }}
-        keyboardType="phone-pad"
+        placeholder="Full Name*"
+        keyboardType="email-address"
         value={phoneNumber}
         onChangeText={setPhoneNumber}
       />
       <PrimaryInput
-        placeholder="Password*"
-        leftIcon={{ type: "font-awesome", name: "lock" }}
-        secureTextEntry
+        placeholder="Email Address*"
+        keyboardType="email-address"
         value={password}
         onChangeText={setPassword}
         containerStyle={styles.inputContainer}
       />
+      <PrimaryInput placeholder="Date of Birth*" />
+      <PrimaryInput
+        placeholder="City"
+        value="Cluj-Napoca"
+        label="City**"
+        disabled
+      />
+      <PrimaryInput label="Address*" />
       <PrimaryButton
-        title="Login"
+        title="Next"
         onPress={() => navigation.navigate("Home")}
+        containerStyle={{
+          marginTop: 20,
+          marginLeft: 225,
+          width: 100,
+          height: 40,
+        }}
       />
       <Button
-        title={"New User? Register Now"}
+        title={"**Only available in Cluj-Napoca for now"}
         type="clear"
+        disabled
         containerStyle={styles.registerText}
-        onPress={() => navigation.navigate("Register")}
       />
     </View>
   );
 };
 
-export default LoginScreen;
+export default RegisterScreen;
