@@ -5,7 +5,9 @@ import { PrimaryButton, PrimaryInput } from "../../components";
 import { NavigationProps } from "../../types";
 import { styles } from "./styles";
 
-const RegisterScreen: React.FC<NavigationProps> = ({ navigation }) => {
+const RegisterScreen: React.FC<NavigationProps<"Register">> = ({
+  navigation,
+}) => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
 

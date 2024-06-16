@@ -1,0 +1,28 @@
+import { useMutation } from "@tanstack/react-query";
+import { postLocation } from "../services/locations/postLocation";
+import { LocationType } from "../types/LocationType";
+
+export const useCreateLocation = () => {
+  const {
+    data: createdLocation,
+    error: createLocationError,
+    isSuccess: createLocationSuccess,
+    mutate: createLocation,
+  } = useMutation({
+    mutationKey: ["createLocation"],
+    mutationFn: (location: LocationType) => postLocation(location),
+    onSuccess: (data) => {
+      console.log("Location created successfully", data);
+    },
+    onError: (error) => {
+      console.error("Failed to create location", error);
+    },
+  });
+
+  return {
+    createLocation,
+    createdLocation,
+    createLocationError,
+    createLocationSuccess,
+  };
+};

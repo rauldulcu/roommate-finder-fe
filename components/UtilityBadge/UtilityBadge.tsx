@@ -1,30 +1,42 @@
 import React from "react";
 import { Badge, BadgeProps } from "@rneui/themed";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View, Text } from "react-native";
+import { Icon } from "@rneui/base";
 
-const UtilityBadge: React.FC<BadgeProps> = ({ ...props }) => {
+// Extending BadgeProps to include an icon name and optionally overriding existing properties
+interface UtilityBadgeProps extends BadgeProps {
+  iconName: string; // Add iconName to props
+}
+
+const UtilityBadge: React.FC<UtilityBadgeProps> = ({
+  iconName,
+  value,
+  ...props
+}) => {
   return (
-    <Badge
-      {...props}
-      badgeStyle={styles.badgeStyle}
-      textStyle={styles.textStyle}
-      containerStyle={styles.containerStyle}
-    />
+    <View style={styles.badgeContainer}>
+      <Icon name={iconName} size={16} color="black" />
+      <Text style={styles.badgeText}>{value}</Text>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  badgeStyle: {
-    backgroundColor: "#0077B6", // Example color
-    paddingHorizontal: 10, // Horizontal padding to add space inside the badge
+  badgeContainer: {
+    flexDirection: "row",
+    backgroundColor: "white",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderRadius: 12,
-    height: 25 // Increasing the border radius for a more rounded look
+    borderWidth: 1,
+    borderColor: "black",
+    alignItems: "center",
+    margin: 8, // Adds spacing between badges if used in a list
   },
-  textStyle: {
-    fontSize: 12, // Adjust the font size as needed
-  },
-  containerStyle: {
-    margin: 5, // Adds space around the badge if it's within a view with other items
+  badgeText: {
+    fontSize: 16,
+    color: "black",
+    marginLeft: 5, // Space between icon and text
   },
 });
 

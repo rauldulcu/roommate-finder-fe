@@ -1,8 +1,23 @@
 import React from "react";
 import { Input, InputProps } from "@rneui/themed";
 import { StyleSheet } from "react-native";
+import { Icon } from "@rneui/base";
 
-const PrimaryInput: React.FC<InputProps> = ({ ...props }) => {
+interface PrimaryInputProps {
+  value: string | number | undefined;
+  onChange: (value: string) => void;
+  placeholder: string;
+  numOfLines?: number;
+  rightIcon?: string;
+}
+
+const PrimaryInput: React.FC<PrimaryInputProps> = ({
+  value,
+  onChange,
+  placeholder,
+  numOfLines,
+  rightIcon,
+}) => {
   return (
     <Input
       containerStyle={styles.inputContainer}
@@ -10,22 +25,29 @@ const PrimaryInput: React.FC<InputProps> = ({ ...props }) => {
       inputStyle={styles.inputStyle}
       leftIconContainerStyle={styles.iconStyle}
       labelStyle={{ marginLeft: 15 }}
-      {...props}
+      placeholder={placeholder}
+      value={value as string}
+      onChange={(event) => onChange(event.nativeEvent.text)}
+      multiline={true}
+      numberOfLines={numOfLines}
+      rightIcon={rightIcon ? <Icon name={rightIcon} /> : undefined}
     />
   );
 };
 
 const styles = StyleSheet.create({
   inputContainer: {
-    paddingHorizontal: 10, // Adjust as needed
+    paddingHorizontal: 10,
+    marginBottom: 0,
   },
   inputContainerStyle: {
-    borderRadius: 30, // This will make the edges rounded
-    borderWidth: 1, // Set the border width
-    borderColor: "grey", // Set the border color
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "grey",
   },
   inputStyle: {
-    padding: 10,
+    paddingHorizontal: 10,
+    fontSize: 16,
   },
   iconStyle: {
     padding: 10,
