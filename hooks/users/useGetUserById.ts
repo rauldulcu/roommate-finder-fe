@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getUserById } from "../services/users/getUserById";
+import { getUserById } from "../../services/users/getUserById";
 
 export const useGetUserById = (id: number) => {
   const {
@@ -7,7 +7,7 @@ export const useGetUserById = (id: number) => {
     error: userError,
     isLoading: userLoading,
   } = useQuery({
-    queryKey: ["users", id],
+    queryKey: ["getUser"],
     queryFn: () => getUserById(id),
   });
 

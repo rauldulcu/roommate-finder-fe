@@ -34,6 +34,7 @@ const FiltersComponent: React.FC = () => {
 
   const applyFiltersAndNavigate = () => {
     updateFilters(localFilters);
+    console.log(filters);
     navigation.navigate("Home");
   };
 

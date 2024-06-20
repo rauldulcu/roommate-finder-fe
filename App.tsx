@@ -16,6 +16,8 @@ import ProfileScreen from "./screens/ProfileScreen/ProfileScreen";
 import SavedScreen from "./screens/SavedApartmentsScreen/SavedScreen";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FiltersProvider } from "./context/FiltersContext/FitlersContext";
+import { UserType } from "./types/UserType";
+import EditProfile from "./screens/EditUserScreen/EditUserScreen";
 
 export type StackParamList = {
   Welcome: undefined;
@@ -27,6 +29,7 @@ export type StackParamList = {
   Profile: undefined;
   Saved: undefined;
   ApartmentInfo: { apartmentId: number };
+  EditProfile: undefined;
 };
 
 const Stack = createNativeStackNavigator<StackParamList>();
@@ -85,6 +88,11 @@ export default function App() {
                 options={{ headerShown: false }}
                 name="Saved"
                 component={SavedScreen}
+              />
+              <Stack.Screen
+                options={{ headerShown: false }}
+                name="EditProfile"
+                component={EditProfile}
               />
             </Stack.Navigator>
           </NavigationContainer>

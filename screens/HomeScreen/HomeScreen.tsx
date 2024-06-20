@@ -6,7 +6,7 @@ import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { Navigation } from "../../components";
 import ApartmentCard from "../../components/ApartmentCard";
 import { NavigationProps } from "../../types";
-import { useGetApartments } from "../../hooks/useGetApartments";
+import { useGetApartments } from "../../hooks/apartments/useGetApartments";
 import MapMarker from "../../components/MapMarker/MapMarker";
 import { filterApartments } from "../../common/filterApartments";
 import { ApartmentType } from "../../types/ApartmentType";
@@ -115,6 +115,7 @@ const HomeScreen: React.FC<NavigationProps<"Home">> = ({ navigation }) => {
       <BottomSheet ref={bottomSheetRef} index={0} snapPoints={snapPoints}>
         <BottomSheetScrollView
           contentContainerStyle={{ alignItems: "center", paddingBottom: 15 }}
+          showsVerticalScrollIndicator={false}
         >
           <Text style={{ marginBottom: 15 }}>
             {filteredApartments && filteredApartments.length > 0

@@ -6,5 +6,6 @@ export type UserType = {
   phoneNumber: string;
   description: string;
   dateOfBirth: string;
+  gender: string;
   occupation: string;
 };

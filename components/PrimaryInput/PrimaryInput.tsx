@@ -1,6 +1,6 @@
 import React from "react";
 import { Input, InputProps } from "@rneui/themed";
-import { StyleSheet } from "react-native";
+import { KeyboardTypeOptions, StyleSheet } from "react-native";
 import { Icon } from "@rneui/base";
 
 interface PrimaryInputProps {
@@ -9,6 +9,7 @@ interface PrimaryInputProps {
   placeholder: string;
   numOfLines?: number;
   rightIcon?: string;
+  keyboardType?: KeyboardTypeOptions | undefined;
 }
 
 const PrimaryInput: React.FC<PrimaryInputProps> = ({
@@ -17,6 +18,7 @@ const PrimaryInput: React.FC<PrimaryInputProps> = ({
   placeholder,
   numOfLines,
   rightIcon,
+  keyboardType,
 }) => {
   return (
     <Input
@@ -31,6 +33,7 @@ const PrimaryInput: React.FC<PrimaryInputProps> = ({
       multiline={true}
       numberOfLines={numOfLines}
       rightIcon={rightIcon ? <Icon name={rightIcon} /> : undefined}
+      keyboardType={keyboardType ? keyboardType : undefined}
     />
   );
 };

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getApartmentById } from "../services/apartments/getApartmentById";
+import { getApartmentById } from "../../services/apartments/getApartmentById";
 
 export const useGetApartmentById = (id: number) => {
   const {

@@ -33,7 +33,7 @@ const FiltersScreen: React.FC<NavigationProps<"Filters">> = ({
         style={{ paddingHorizontal: 10, paddingTop: 10 }}
         handleComponent={null}
       >
-        <ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
           <Text style={styles.header}>Choose filters</Text>
           <Divider />
           <FiltersComponent />

@@ -36,9 +36,8 @@ export const filterApartments = (
             calculateYearsFromTimestamp(apartment.owner.dateOfBirth) <= max
           );
         })) &&
-      // (!filters.genderFilters.length || filters.genderFilters.includes(apartment.owner)) &&
-      //   (!filters.ageFilters.length ||
-      //     filters.ageFilters.includes(apartment.owner.dateOfBirth)) &&
+      // (!filters.genderFilters.length ||
+      //   filters.genderFilters.includes(apartment.owner.gender)) &&
       (!filters.hobbyFilters.length ||
         filters.hobbyFilters.some((hobby) =>
           apartment.owner.hobbies.includes(hobby)

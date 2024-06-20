@@ -12,8 +12,8 @@ import {
   GooglePlacesAutocomplete,
 } from "react-native-google-places-autocomplete";
 import { LocationType } from "../../types/LocationType";
-import { useCreateLocation } from "../../hooks/useCreateLocation";
-import { useCreateApartment } from "../../hooks/useCreateApartment";
+import { useCreateApartment } from "../../hooks/apartments/useCreateApartment";
+import { useCreateLocation } from "../../hooks/locations/useCreateLocation";
 
 export type CreatePostScreenValues = {
   title: string;
@@ -39,8 +39,7 @@ const CreatePostScreen: React.FC<NavigationProps<"CreatePost">> = ({
   const snapPoints = useMemo(() => ["75%"], []);
   const bottomSheetRef = useRef<BottomSheet>(null);
 
-  const { createLocation, createdLocation, createLocationSuccess } =
-    useCreateLocation();
+  const { createLocation } = useCreateLocation();
 
   const { createApartment } = useCreateApartment();
 
@@ -89,7 +88,6 @@ const CreatePostScreen: React.FC<NavigationProps<"CreatePost">> = ({
   });
 
   const onSubmit = (data: CreatePostScreenValues) => {
-    console.log(apartmentLocation);
     apartmentLocation &&
       createLocation(
         {
@@ -139,6 +137,7 @@ const CreatePostScreen: React.FC<NavigationProps<"CreatePost">> = ({
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps={"always"}
+          showsVerticalScrollIndicator={false}
         >
           <View style={styles.formContainer}>
             <Text style={styles.header}>Tell us about your place</Text>
@@ -219,6 +218,7 @@ const CreatePostScreen: React.FC<NavigationProps<"CreatePost">> = ({
                   onChange={(inputValue) => onChange(inputValue)}
                   value={value}
                   rightIcon="euro"
+                  keyboardType="numeric"
                 />
               )}
             />

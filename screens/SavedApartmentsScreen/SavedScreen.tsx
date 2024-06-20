@@ -1,68 +1,61 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   SafeAreaView,
+  FlatList,
+  StyleSheet,
   Text,
   View,
-  StyleSheet,
-  Dimensions,
-  ScrollView,
+  ActivityIndicator,
 } from "react-native";
+import SavedApartmentCard from "../../components/SavedApartmentCard/SavedApartmentCard";
+import { useGetSavedApartments } from "../../hooks/apartments/useGetSavedApartments";
 
-const { width } = Dimensions.get("window");
+const SavedScreen = () => {
+  const userId = 1;
+  const {
+    userSavedApartments,
+    userSavedApartmentsLoading,
+    userSavedApartmentsError,
+  } = useGetSavedApartments(userId);
 
-const SavedScreen: React.FC = () => {
-  // Simulating dynamic data fetching
-  const [apartments, setApartments] = useState(
-    Array(8).fill({
-      title: "Mănăștur",
-      subTitle: "2 Bedrooms, 62 Sq.Ft. Apartment on Aleea Pean22a",
-      price: "500",
-      imageUrl:
-        "https://www.apartments.com/blog/sites/default/files/styles/x_large/public/image/2023-06/ParkLine-apartment-in-Miami-FL.jpg.webp?itok=lYDRCGzC",
-    })
-  );
+  if (userSavedApartmentsLoading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
-  useEffect(() => {
-    // Simulate fetching data
-    // fetchYourData().then(data => setApartments(data));
-  }, []);
-
-  const renderGrid = () => {
-    // return apartments.map((apartment, index) => (
-    //   <View style={styles.card} key={index}>
-    //     <ApartmentCard {...apartment} />
-    //   </View>
-    // ));
-  };
+  if (userSavedApartmentsError) {
+    return (
+      <View style={styles.centered}>
+        <Text>Error loading apartments.</Text>
+      </View>
+    );
+  }
 
   return (
-    <SafeAreaView style={{ flex: 1, marginTop: 50 }}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.headerText}>Your saved posts</Text>
-        {/* <View style={styles.grid}>{renderGrid()}</View> */}
-      </ScrollView>
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+      <FlatList
+        data={userSavedApartments}
+        renderItem={({ item }) => <SavedApartmentCard apartment={item} />}
+        keyExtractor={(item) => item.id.toString()}
+        numColumns={2} // Create a grid layout with two columns
+        contentContainerStyle={styles.list}
+      />
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  centered: {
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
-    padding: 15,
   },
-  headerText: {
-    marginBottom: 15,
-    fontWeight: "800",
-    fontSize: 24,
-  },
-  grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-around",
-  },
-  card: {
-    width: width / 2 - 20,
-    marginBottom: 15,
+  list: {
+    alignItems: "center",
+    padding: 10,
   },
 });
 

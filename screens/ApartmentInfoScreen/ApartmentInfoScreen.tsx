@@ -14,7 +14,7 @@ import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { PrimaryButton } from "../../components";
 import UtilityBadge from "../../components/UtilityBadge/UtilityBadge";
 import { NavigationProps } from "../../types";
-import { useGetApartmentById } from "../../hooks/useGetApartmentById";
+import { useGetApartmentById } from "../../hooks/apartments/useGetApartmentById";
 import { utilityIconMapping } from "../../common/UtilityMapping";
 import { Divider } from "@rneui/base";
 import { calculateYearsFromTimestamp } from "../../common/calculateYears";
@@ -126,10 +126,8 @@ const PropertyDetailScreen: React.FC<NavigationProps<"ApartmentInfo">> = ({
                   {apartment.owner.name}
                 </Text>
               </View>
-              <Text style={styles.propertyTitle}>About Apartment</Text>
-              <Text style={(styles.description, { textAlign: "center" })}>
-                {apartment.description}
-              </Text>
+              <Text style={styles.propertyTitle}>{apartment.title}</Text>
+              <Text style={styles.description}>{apartment.description}</Text>
               <Divider style={{ marginTop: 15 }} />
               <Text style={styles.propertyTitle}>Utilities</Text>
               <View style={styles.tags}>
@@ -147,17 +145,18 @@ const PropertyDetailScreen: React.FC<NavigationProps<"ApartmentInfo">> = ({
               </Text>
               <Divider style={{ marginTop: 15 }} />
               <Text style={styles.propertyTitle}>About user</Text>
-              <Text style={(styles.description, { textAlign: "center" })}>
+              <Text style={styles.description}>
                 {apartment.owner.description}
               </Text>
-              <Text style={(styles.description, { textAlign: "center" })}>
+              <Text style={styles.description}>
                 My age is:{" "}
                 {calculateYearsFromTimestamp(apartment.owner.dateOfBirth)}
               </Text>
-
-              <Text style={(styles.description, { textAlign: "center" })}>
-                My hobbies and interests include:{" "}
-              </Text>
+              {apartment.owner.hobbies.length > 0 && (
+                <Text style={styles.description}>
+                  My hobbies and interests include:{" "}
+                </Text>
+              )}
               <View style={styles.tags}>
                 {apartment.owner.hobbies.map((hobby, index) => {
                   const { label, icon } = utilityIconMapping[hobby];
@@ -166,6 +165,7 @@ const PropertyDetailScreen: React.FC<NavigationProps<"ApartmentInfo">> = ({
                   );
                 })}
               </View>
+
               <View
                 style={{
                   flexDirection: "column",

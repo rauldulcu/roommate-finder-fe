@@ -1,10 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { postApartment } from "../services/apartments/postApartment";
-import { CreatePostScreenValues } from "../screens/CreatePostScreen/CreatePostScreen";
+import { CreatePostScreenValues } from "../../screens/CreatePostScreen/CreatePostScreen";
+import { postApartment } from "../../services/apartments/postApartment";
 
 export const useCreateApartment = () => {
   const queryClient = useQueryClient();
-  const apartmentQueryKey = ["apartments"];
+  const queryKeys = {
+    queryKey: ["apartments"],
+  };
 
   const {
     data: createdApartment,
@@ -16,7 +18,7 @@ export const useCreateApartment = () => {
     mutationFn: (apartment: CreatePostScreenValues) => postApartment(apartment),
     onSuccess: (data) => {
       console.log("Apartment created successfully", data);
-      queryClient.invalidateQueries(apartmentQueryKey);
+      queryClient.invalidateQueries(queryKeys);
     },
     onError: (error) => {
       console.error("Failed to create Apartment", error);

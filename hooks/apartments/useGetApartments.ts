@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getApartments } from "../services/apartments/getApartments";
+import { getApartments } from "../../services/apartments/getApartments";
 
 export const useGetApartments = () => {
   const {
