@@ -19,7 +19,7 @@ const screenWidth = Dimensions.get("window").width;
 const ProfileScreen: React.FC<NavigationProps<"Profile">> = ({
   navigation,
 }) => {
-  const { user, userError, userLoading } = useGetUserById(13);
+  const { user, userError, userLoading, refetch } = useGetUserById(2);
 
   if (userLoading) {
     return (
@@ -36,6 +36,8 @@ const ProfileScreen: React.FC<NavigationProps<"Profile">> = ({
       </View>
     );
   }
+
+  refetch();
 
   if (user) {
     return (

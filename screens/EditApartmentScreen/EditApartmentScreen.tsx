@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import { Image, View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import FilterTag from "../../components/FilterTag";
 import { PrimaryButton, PrimaryInput } from "../../components";
@@ -12,27 +12,37 @@ import {
   GooglePlacesAutocomplete,
 } from "react-native-google-places-autocomplete";
 import { LocationType } from "../../types/LocationType";
-import { useCreateApartment } from "../../hooks/apartments/useCreateApartment";
 import { useCreateLocation } from "../../hooks/locations/useCreateLocation";
+import { useGetApartmentById } from "../../hooks/apartments/useGetApartmentById";
+import { useUpdateApartment } from "../../hooks/apartments/useUpdateApartment";
+import { UserType } from "../../types/UserType";
 
-export type CreatePostScreenValues = {
+export type EditApartmentScreenValues = {
   title: string;
   subtitle: string;
   description: string;
   price: number;
+  owner: UserType;
   zone: string | null;
   utilities: string[];
-  locationId: number | undefined;
-  ownerId: number;
+  location: LocationType;
 };
 
-const CreatePostScreen: React.FC<NavigationProps<"CreatePost">> = ({
+const EditApartmentScreen: React.FC<NavigationProps<"EditApartment">> = ({
   navigation,
+  route,
 }) => {
+  const apartmentId = route!.params.apartmentId;
+
+  const { apartment, apartmentError, apartmentLoading } =
+    useGetApartmentById(apartmentId);
+
   const [selectedZone, setSelectedZone] = useState<string | null>(null);
-
+  const [address, setAddress] = useState(apartment?.location.address);
+  const [autocompleteValue, setAutocompleteValue] = useState(
+    apartment?.location.address
+  );
   const [selectedUtilities, setSelectedUtilities] = useState<string[]>([]);
-
   const [apartmentLocation, setApartmentLocation] =
     useState<LocationType | null>(null);
 
@@ -41,7 +51,7 @@ const CreatePostScreen: React.FC<NavigationProps<"CreatePost">> = ({
 
   const { createLocation } = useCreateLocation();
 
-  const { createApartment } = useCreateApartment();
+  const { updateApartment } = useUpdateApartment();
 
   const handleZoneSelect = (value: string) => {
     setSelectedZone(value);
@@ -70,25 +80,39 @@ const CreatePostScreen: React.FC<NavigationProps<"CreatePost">> = ({
       zone: selectedZone!,
       address: details.formatted_address,
     });
+    setAutocompleteValue(details.formatted_address);
+  };
+
+  useEffect(() => {
+    if (apartment) {
+      setSelectedUtilities(apartment.utilities);
+      setSelectedZone(apartment.location.zone);
+      setAddress(apartment.location.address);
+      setAutocompleteValue(address);
+    }
+  }, [apartment]);
+
+  const handleInputChange = (text: string) => {
+    setAutocompleteValue(text);
   };
 
   const {
     control,
     handleSubmit,
     formState: { isValid },
-  } = useForm<CreatePostScreenValues>({
+  } = useForm<EditApartmentScreenValues>({
     defaultValues: {
-      title: "",
-      subtitle: "",
-      description: "",
-      price: 0,
-      zone: "",
-      utilities: [],
+      title: apartment?.title,
+      subtitle: apartment?.subtitle,
+      description: apartment?.description,
+      price: apartment?.price || 0,
+      zone: apartment?.location.zone,
+      utilities: apartment?.utilities,
     },
   });
 
-  const onSubmit = (data: CreatePostScreenValues) => {
-    apartmentLocation &&
+  const onSubmit = (data: EditApartmentScreenValues) => {
+    if (apartmentLocation !== null) {
       createLocation(
         {
           address: apartmentLocation.address,
@@ -102,15 +126,41 @@ const CreatePostScreen: React.FC<NavigationProps<"CreatePost">> = ({
               ...data,
               utilities: selectedUtilities,
               zone: createdLocation.zone,
-              locationId: createdLocation.id,
-              ownerId: 6,
+              location: createdLocation,
+              owner: apartment!.owner,
             };
-            createApartment(apartmentData);
-            navigation.navigate("Home");
+            updateApartment({ id: apartment!.id, apartment: apartmentData });
+            navigation.navigate("ApartmentInfo", {
+              apartmentId: apartment!.id,
+            });
           },
         }
       );
+    } else {
+      data.location = apartment!.location;
+      data.owner = apartment!.owner;
+      data.zone = selectedZone;
+      data.utilities = selectedUtilities;
+      updateApartment({ id: apartment!.id, apartment: data });
+      navigation.navigate("ApartmentInfo", { apartmentId: apartment!.id });
+    }
   };
+
+  if (apartmentLoading) {
+    return (
+      <View style={{ flex: 1, alignContent: "center" }}>
+        <Text>Loading apartment info..</Text>
+      </View>
+    );
+  }
+
+  if (apartmentError) {
+    return (
+      <View style={{ flex: 1, alignContent: "center" }}>
+        <Text>An error has occured</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1 }}>
@@ -192,6 +242,10 @@ const CreatePostScreen: React.FC<NavigationProps<"CreatePost">> = ({
                 }}
                 disableScroll={true}
                 onFail={(error) => console.error(error)}
+                textInputProps={{
+                  value: autocompleteValue,
+                  onChange: handleInputChange,
+                }}
               />
             </View>
 
@@ -219,7 +273,7 @@ const CreatePostScreen: React.FC<NavigationProps<"CreatePost">> = ({
                 <PrimaryInput
                   placeholder="Price"
                   onChange={(inputValue) => onChange(inputValue)}
-                  value={value}
+                  value={String(value)}
                   rightIcon="euro"
                   keyboardType="numeric"
                 />
@@ -309,11 +363,7 @@ const CreatePostScreen: React.FC<NavigationProps<"CreatePost">> = ({
               <PrimaryButton
                 title="Post"
                 onPress={handleSubmit(onSubmit)}
-                disabled={
-                  !isValid ||
-                  selectedZone === null ||
-                  apartmentLocation === null
-                }
+                disabled={!isValid || selectedZone === null}
               />
             </View>
           </View>
@@ -390,4 +440,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CreatePostScreen;
+export default EditApartmentScreen;

@@ -1,7 +1,6 @@
 export const calculateYearsFromTimestamp = (timestamp: string) => {
   const dateFromTimestamp = new Date(timestamp);
   const currentDate = new Date();
-  console.log(dateFromTimestamp);
 
   const yearsDifference =
     currentDate.getFullYear() - dateFromTimestamp.getFullYear();

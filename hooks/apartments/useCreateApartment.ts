@@ -17,7 +17,6 @@ export const useCreateApartment = () => {
     mutationKey: ["createApartment"],
     mutationFn: (apartment: CreatePostScreenValues) => postApartment(apartment),
     onSuccess: (data) => {
-      console.log("Apartment created successfully", data);
       queryClient.invalidateQueries(queryKeys);
     },
     onError: (error) => {

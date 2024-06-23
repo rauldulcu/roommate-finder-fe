@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Avatar, Icon } from "@rneui/themed";
 import Carousel from "react-native-snap-carousel";
-import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import BottomSheet from "@gorhom/bottom-sheet";
 import { PrimaryButton } from "../../components";
 import UtilityBadge from "../../components/UtilityBadge/UtilityBadge";
 import { NavigationProps } from "../../types";
@@ -18,6 +18,7 @@ import { useGetApartmentById } from "../../hooks/apartments/useGetApartmentById"
 import { utilityIconMapping } from "../../common/UtilityMapping";
 import { Divider } from "@rneui/base";
 import { calculateYearsFromTimestamp } from "../../common/calculateYears";
+import { ScrollView } from "react-native-gesture-handler";
 
 interface CarouselItem {
   url: string;
@@ -30,6 +31,9 @@ const PropertyDetailScreen: React.FC<NavigationProps<"ApartmentInfo">> = ({
   const apartmentId = route!.params.apartmentId;
   const bottomSheetRef = React.useRef(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
+
+  const toggleOptions = () => setShowOptions(!showOptions);
 
   const renderCarouselItem = ({ item }: { item: CarouselItem }) => {
     return (
@@ -90,11 +94,42 @@ const PropertyDetailScreen: React.FC<NavigationProps<"ApartmentInfo">> = ({
     return (
       <View style={styles.container}>
         <TouchableOpacity
+          style={styles.touchOverlay}
+          activeOpacity={1}
+          onPress={() => showOptions && setShowOptions(false)}
+        />
+        <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
           <Icon name="arrow-back" type="material" color="black" size={30} />
         </TouchableOpacity>
+        <TouchableOpacity style={styles.optionButton} onPress={toggleOptions}>
+          <Icon name="more-vert" type="material" color="black" size={30} />
+        </TouchableOpacity>
+        {showOptions && (
+          <View style={styles.optionsCard}>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate("EditApartment", {
+                  apartmentId: apartment.id,
+                });
+                setShowOptions(false);
+              }}
+            >
+              <Text style={{ fontSize: 16, fontWeight: "500" }}>EDIT</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setShowOptions(false);
+              }}
+            >
+              <Text style={{ fontSize: 16, color: "red", fontWeight: "500" }}>
+                DELETE
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
         <Carousel
           data={exampleItems}
           renderItem={renderCarouselItem}
@@ -112,7 +147,7 @@ const PropertyDetailScreen: React.FC<NavigationProps<"ApartmentInfo">> = ({
             setIsOpen(!isOpen);
           }}
         >
-          <BottomSheetScrollView>
+          <ScrollView>
             <View style={styles.card}>
               <View style={styles.landlordInfo}>
                 <Avatar
@@ -183,7 +218,7 @@ const PropertyDetailScreen: React.FC<NavigationProps<"ApartmentInfo">> = ({
                 />
               </View>
             </View>
-          </BottomSheetScrollView>
+          </ScrollView>
         </BottomSheet>
       </View>
     );
@@ -199,6 +234,12 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 50,
     left: 20,
+    zIndex: 10,
+  },
+  optionButton: {
+    position: "absolute",
+    top: 50,
+    right: 20,
     zIndex: 10,
   },
   carouselImage: {
@@ -230,6 +271,30 @@ const styles = StyleSheet.create({
     fontSize: 25,
     marginBottom: 15,
     marginTop: 35,
+  },
+  optionsCard: {
+    position: "absolute",
+    right: 30,
+    top: 80,
+    alignItems: "center",
+    backgroundColor: "white",
+    gap: 10,
+    padding: 10,
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+    zIndex: 20,
+  },
+  touchOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "transparent",
   },
 });
 

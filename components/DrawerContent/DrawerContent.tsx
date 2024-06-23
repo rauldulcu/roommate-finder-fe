@@ -22,16 +22,16 @@ const DrawerComponent: React.FC<DrawerProps> = ({
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => {
-          toggleDrawer();
           navigation.navigate("Profile");
+          toggleDrawer();
         }}
       >
         <Text style={styles.drawerItem}>View Profile</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => {
-          toggleDrawer();
           navigation.navigate("Saved");
+          toggleDrawer();
         }}
       >
         <Text style={styles.drawerItem}>Saved</Text>

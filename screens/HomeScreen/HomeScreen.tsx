@@ -11,6 +11,7 @@ import MapMarker from "../../components/MapMarker/MapMarker";
 import { filterApartments } from "../../common/filterApartments";
 import { ApartmentType } from "../../types/ApartmentType";
 import { useFilters } from "../../context/FiltersContext/FitlersContext";
+import { ScrollView } from "react-native-gesture-handler";
 
 type RegionType = {
   latitude: number;
@@ -26,7 +27,18 @@ const HomeScreen: React.FC<NavigationProps<"Home">> = ({ navigation }) => {
     ApartmentType[] | undefined
   >(undefined);
 
+  const [visibleApartments, setVisibleApartments] = useState<
+    ApartmentType[] | undefined
+  >(undefined);
+
   const [region, setRegion] = useState<RegionType>({
+    latitude: 0,
+    longitude: 0,
+    latitudeDelta: 0.005,
+    longitudeDelta: 0.005,
+  });
+
+  const [visibleRegion, setVisibleRegion] = useState<RegionType>({
     latitude: 0,
     longitude: 0,
     latitudeDelta: 0.005,
@@ -60,10 +72,50 @@ const HomeScreen: React.FC<NavigationProps<"Home">> = ({ navigation }) => {
   useEffect(() => {
     if (apartments && region) {
       const filteredData = filterApartments(apartments, filters);
-
       setFilteredApartments(filteredData);
     }
   }, [apartments, filters]);
+
+  useEffect(() => {
+    handleRegionChangeComplete(visibleRegion);
+  }, [filteredApartments]);
+
+  const handleRegionChangeComplete = (newRegion: RegionType) => {
+    setVisibleRegion(newRegion);
+
+    const { latitude, longitude, latitudeDelta, longitudeDelta } = newRegion;
+    const northEastLat = latitude + latitudeDelta / 2;
+    const southWestLat = latitude - latitudeDelta / 2;
+    const northEastLng = longitude + longitudeDelta / 2;
+    const southWestLng = longitude - longitudeDelta / 2;
+
+    let filteredMapApartments;
+
+    filteredMapApartments =
+      filters && Object.values(filters).some((array) => array.length > 0)
+        ? filteredApartments?.filter((apartment) => {
+            const apartmentLat = apartment.location.latitude;
+            const apartmentLng = apartment.location.longitude;
+            return (
+              apartmentLat >= southWestLat &&
+              apartmentLat <= northEastLat &&
+              apartmentLng >= southWestLng &&
+              apartmentLng <= northEastLng
+            );
+          })
+        : apartments?.filter((apartment) => {
+            const apartmentLat = apartment.location.latitude;
+            const apartmentLng = apartment.location.longitude;
+            return (
+              apartmentLat >= southWestLat &&
+              apartmentLat <= northEastLat &&
+              apartmentLng >= southWestLng &&
+              apartmentLng <= northEastLng
+            );
+          });
+
+    setVisibleApartments(filteredMapApartments);
+  };
 
   if (apartmentsLoading) {
     return (
@@ -88,7 +140,7 @@ const HomeScreen: React.FC<NavigationProps<"Home">> = ({ navigation }) => {
         style={{ width: "100%", height: "100%" }}
         region={region}
         showsUserLocation={true}
-        onRegionChangeComplete={(newRegion) => setRegion(newRegion)}
+        onRegionChangeComplete={handleRegionChangeComplete}
       >
         {filteredApartments && filteredApartments.length > 0
           ? filteredApartments.map((apartment, index) => (
@@ -113,36 +165,29 @@ const HomeScreen: React.FC<NavigationProps<"Home">> = ({ navigation }) => {
             ))}
       </MapView>
       <BottomSheet ref={bottomSheetRef} index={0} snapPoints={snapPoints}>
-        <BottomSheetScrollView
+        <ScrollView
           contentContainerStyle={{ alignItems: "center", paddingBottom: 15 }}
           showsVerticalScrollIndicator={false}
         >
           <Text style={{ marginBottom: 15 }}>
-            {filteredApartments && filteredApartments.length > 0
-              ? filteredApartments.length > 1
-                ? `Found ${filteredApartments.length} apartments!`
+            {visibleApartments && visibleApartments.length > 0
+              ? visibleApartments.length > 1
+                ? `Found ${visibleApartments.length} apartments!`
                 : "Found 1 apartment!"
-              : filters &&
-                Object.values(filters).some((array) => array.length > 0)
-              ? "No apartments matching your filters have been found."
-              : `Found ${apartments?.length} apartments!`}
+              : "No apartments found."}
           </Text>
-          {filteredApartments && filteredApartments.length > 0
-            ? filteredApartments.map((apartment) => (
+          {visibleApartments && visibleApartments.length > 0
+            ? visibleApartments.map((apartment) => (
                 <ApartmentCard key={apartment.id} apartment={apartment} />
               ))
             : filters &&
-              Object.values(filters).some((array) => array.length > 0)
-            ? null
-            : apartments?.map((apartment) => (
-                <ApartmentCard key={apartment.id} apartment={apartment} />
-              ))}
+              Object.values(filters).some((array) => array.length > 0)}
           {apartmentsLoading && <Text>Loading...</Text>}
-        </BottomSheetScrollView>
+        </ScrollView>
       </BottomSheet>
     </View>
   ) : (
-    <View>
+    <View style={styles.centeredView}>
       <Text>Loading...</Text>
     </View>
   );

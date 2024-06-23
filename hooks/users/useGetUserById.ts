@@ -6,10 +6,12 @@ export const useGetUserById = (id: number) => {
     data: user,
     error: userError,
     isLoading: userLoading,
+    refetch,
   } = useQuery({
-    queryKey: ["getUser"],
+    queryKey: ["getUser", id],
     queryFn: () => getUserById(id),
+    refetchOnWindowFocus: true,
   });
 
-  return { user, userError, userLoading };
+  return { user, userError, userLoading, refetch };
 };

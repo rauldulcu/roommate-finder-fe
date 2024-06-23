@@ -21,11 +21,11 @@ import { useUpdateUser } from "../../hooks/users/useUpdateUser";
 
 const screenWidth = Dimensions.get("window").width;
 
-const EditProfile: React.FC<NavigationProps<"EditProfile">> = ({
+const EditProfileScreen: React.FC<NavigationProps<"EditProfile">> = ({
   navigation,
 }) => {
   const [selectedOccupation, setSelectedOccupation] = useState<string | null>(
-    null
+    ""
   );
 
   const handleOccupationSelect = (value: string) => {
@@ -49,9 +49,8 @@ const EditProfile: React.FC<NavigationProps<"EditProfile">> = ({
 
   const isHobbySelected = (value: string) => selectedHobbies.includes(value);
 
-  const { user, userError, userLoading } = useGetUserById(13);
+  const { user, userError, userLoading } = useGetUserById(2);
   const { updateUser } = useUpdateUser();
-
   useEffect(() => {
     if (user !== undefined) {
       setSelectedHobbies(user!.hobbies);
@@ -77,17 +76,21 @@ const EditProfile: React.FC<NavigationProps<"EditProfile">> = ({
   });
 
   const onSubmit = (data: UserType) => {
-    data.dateOfBirth = dateToISO(data.dateOfBirth);
-    data.hobbies = selectedHobbies;
-    console.log(data);
-    updateUser(
-      { id: 13, user: data },
-      {
-        onSuccess: () => {
-          navigation.navigate("Profile");
-        },
-      }
-    );
+    if (data.dateOfBirth && selectedOccupation) {
+      data.dateOfBirth = dateToISO(data.dateOfBirth);
+      data.hobbies = selectedHobbies;
+      data.occupation = selectedOccupation;
+      updateUser(
+        { id: 2, user: data },
+        {
+          onSuccess: () => {
+            navigation.navigate("Profile");
+          },
+        }
+      );
+    } else {
+      console.error("Date of Birth or Occupation is undefined");
+    }
   };
 
   if (userLoading) {
@@ -355,7 +358,7 @@ const EditProfile: React.FC<NavigationProps<"EditProfile">> = ({
   }
 };
 
-export default EditProfile;
+export default EditProfileScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -372,11 +375,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     marginTop: 75,
-  },
-  tags: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginTop: 10,
   },
   backButton: {
     position: "absolute",

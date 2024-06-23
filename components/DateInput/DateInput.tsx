@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React from "react";
+import { View, StyleSheet } from "react-native";
 import PrimaryInput from "../PrimaryInput"; // Assuming PrimaryInput passes through the value
 
 type DateInputProps = {
@@ -46,23 +46,18 @@ const DateInput: React.FC<DateInputProps> = ({ onChange, onBlur, value }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.inputContainer}>
-        <PrimaryInput
-          onChange={handleOnChange}
-          value={value}
-          placeholder="DD/MM/YYYY"
-          keyboardType="numeric"
-        />
-      </View>
+    <View style={styles.inputContainer}>
+      <PrimaryInput
+        onChange={handleOnChange}
+        value={value}
+        placeholder="DD/MM/YYYY"
+        keyboardType="numeric"
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 10,
-  },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",

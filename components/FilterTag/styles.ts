@@ -8,6 +8,7 @@ export const styles = StyleSheet.create({
     borderRadius: 16,
     flexDirection: "row",
     alignItems: "center",
+    width: "auto",
   },
   selected: {
     backgroundColor: "#007BFF",

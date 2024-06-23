@@ -7,7 +7,7 @@ export const useGetApartmentById = (id: number) => {
     error: apartmentError,
     isLoading: apartmentLoading,
   } = useQuery({
-    queryKey: ["apartments", id],
+    queryKey: ["getApartment", id],
     queryFn: () => getApartmentById(id),
   });
 

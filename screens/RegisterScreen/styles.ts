@@ -1,4 +1,6 @@
-import { StyleSheet } from "react-native";
+import { Dimensions, StyleSheet } from "react-native";
+
+const screenWidth = Dimensions.get("window").width;
 
 export const styles = StyleSheet.create({
   container: {
@@ -9,8 +11,8 @@ export const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   logo: {
-    width: 150,
-    height: 150,
+    width: 250,
+    height: 250,
     resizeMode: "contain",
   },
   loginTitle: {
@@ -21,6 +23,28 @@ export const styles = StyleSheet.create({
   },
   registerText: {
     color: "blue",
-    marginTop: 100,
+    marginTop: 50,
+  },
+  tagContainer: {
+    width: screenWidth * 0.9,
+    alignContent: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "flex-start",
+    marginBottom: 50,
+  },
+  occupationContainer: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    marginHorizontal: 45,
+    marginBottom: 15,
+  },
+  sectionTitle: {
+    fontWeight: "700",
+    fontSize: 16,
+    marginBottom: 10,
+    marginTop: 10,
   },
 });

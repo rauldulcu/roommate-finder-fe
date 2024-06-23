@@ -10,9 +10,6 @@ export const useSaveApartment = (userId: number, apartmentId: number) => {
   } = useMutation({
     mutationKey: ["saveApartment"],
     mutationFn: () => postUserSavedApartment(userId, apartmentId),
-    onSuccess: (data) => {
-      console.log("Saved apartment successfully", data);
-    },
     onError: (error) => {
       console.error("Failed to save apartment", error);
     },

@@ -6,9 +6,11 @@ import {
   Text,
   View,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import SavedApartmentCard from "../../components/SavedApartmentCard/SavedApartmentCard";
 import { useGetSavedApartments } from "../../hooks/apartments/useGetSavedApartments";
+import ApartmentCard from "../../components/ApartmentCard";
 
 const SavedScreen = () => {
   const userId = 1;
@@ -35,14 +37,18 @@ const SavedScreen = () => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-      <FlatList
-        data={userSavedApartments}
-        renderItem={({ item }) => <SavedApartmentCard apartment={item} />}
-        keyExtractor={(item) => item.id.toString()}
-        numColumns={2} // Create a grid layout with two columns
-        contentContainerStyle={styles.list}
-      />
+    <SafeAreaView style={{ flex: 1, backgroundColor: "white", padding: 16 }}>
+      <ScrollView
+        contentContainerStyle={{ alignItems: "center", paddingVertical: 15 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {userSavedApartments &&
+          userSavedApartments.length > 0 &&
+          userSavedApartments?.map((apartment) => (
+            <ApartmentCard key={apartment.id} apartment={apartment} />
+          ))}
+        {userSavedApartmentsLoading && <Text>Loading...</Text>}
+      </ScrollView>
     </SafeAreaView>
   );
 };
