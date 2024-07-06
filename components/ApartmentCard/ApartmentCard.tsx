@@ -9,6 +9,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import { ApartmentType } from "../../types/ApartmentType";
 import { useIsApartmentSaved } from "../../hooks/apartments/useIsApartmentSaved";
 import { useSaveApartment } from "../../hooks/apartments/useSaveApartment";
+import { useUser } from "../../context/UserContext/UserContext";
 
 type ApartmentCardProps = {
   apartment: ApartmentType;
@@ -17,13 +18,13 @@ type ApartmentCardProps = {
 const ApartmentCard: React.FC<ApartmentCardProps> = ({ apartment }) => {
   const navigation = useNavigation<NavigationProp<StackParamList>>();
 
-  const userId = 1;
+  const { loggedUser } = useUser();
 
   const { isApartmentSaved, isApartmentSavedLoading } = useIsApartmentSaved(
     1,
     apartment.id
   );
-  const { saveApartment } = useSaveApartment(userId, apartment.id);
+  const { saveApartment } = useSaveApartment(loggedUser!.id, apartment.id);
 
   const [saved, setSaved] = useState<boolean | undefined>(undefined);
 
@@ -42,7 +43,10 @@ const ApartmentCard: React.FC<ApartmentCardProps> = ({ apartment }) => {
     <Card containerStyle={styles.cardContainer}>
       <Image
         source={{
-          uri: "https://www.apartments.com/blog/sites/default/files/styles/x_large/public/image/2023-06/ParkLine-apartment-in-Miami-FL.jpg.webp?itok=lYDRCGzC",
+          uri:
+            apartment.imageURLs.length > 0
+              ? apartment.imageURLs[0].imageURL
+              : "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg",
         }}
         style={styles.image}
       />

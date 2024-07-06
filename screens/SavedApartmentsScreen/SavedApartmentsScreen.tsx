@@ -1,24 +1,30 @@
 import React from "react";
 import {
   SafeAreaView,
-  FlatList,
   StyleSheet,
   Text,
   View,
   ActivityIndicator,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
-import SavedApartmentCard from "../../components/SavedApartmentCard/SavedApartmentCard";
 import { useGetSavedApartments } from "../../hooks/apartments/useGetSavedApartments";
-import ApartmentCard from "../../components/ApartmentCard";
+import { Icon } from "@rneui/base";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { StackParamList } from "../../App";
+import { ApartmentCard } from "../../components";
+import { styles } from "./styles";
+import { useUser } from "../../context/UserContext/UserContext";
 
-const SavedScreen = () => {
-  const userId = 1;
+const SavedApartmentsScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
+  const { loggedUser } = useUser();
+
   const {
     userSavedApartments,
     userSavedApartmentsLoading,
     userSavedApartmentsError,
-  } = useGetSavedApartments(userId);
+  } = useGetSavedApartments(loggedUser!.id);
 
   if (userSavedApartmentsLoading) {
     return (
@@ -38,10 +44,17 @@ const SavedScreen = () => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white", padding: 16 }}>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+      >
+        <Icon name="arrow-back" type="material" color="black" size={30} />
+      </TouchableOpacity>
       <ScrollView
         contentContainerStyle={{ alignItems: "center", paddingVertical: 15 }}
         showsVerticalScrollIndicator={false}
       >
+        <Text style={styles.header}>These are your saved apartments</Text>
         {userSavedApartments &&
           userSavedApartments.length > 0 &&
           userSavedApartments?.map((apartment) => (
@@ -53,16 +66,4 @@ const SavedScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  centered: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  list: {
-    alignItems: "center",
-    padding: 10,
-  },
-});
-
-export default SavedScreen;
+export default SavedApartmentsScreen;

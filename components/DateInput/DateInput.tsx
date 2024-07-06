@@ -1,6 +1,7 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
-import PrimaryInput from "../PrimaryInput"; // Assuming PrimaryInput passes through the value
+import { View } from "react-native";
+import PrimaryInput from "../PrimaryInput";
+import { styles } from "./styles";
 
 type DateInputProps = {
   onChange: (text: string) => void;
@@ -56,17 +57,5 @@ const DateInput: React.FC<DateInputProps> = ({ onChange, onBlur, value }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  errorText: {
-    color: "red",
-    fontSize: 12,
-    marginTop: 5,
-  },
-});
 
 export default DateInput;

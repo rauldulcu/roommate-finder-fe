@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Icon } from "@rneui/base";
-import { styles } from "./styles"; // Make sure this path is correct
+import { styles } from "./styles";
 
 type FilterTagType = {
   label: string;

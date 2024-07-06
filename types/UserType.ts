@@ -3,9 +3,11 @@ export type UserType = {
   name: string;
   hobbies: string[];
   email: string;
+  password: string;
   phoneNumber: string;
   description: string;
   dateOfBirth: string;
   gender: string;
   occupation: string;
+  avatarURL?: string | null;
 };

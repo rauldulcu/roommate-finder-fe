@@ -1,8 +1,9 @@
+import { EditApartmentScreenValues } from "../../screens/EditApartmentScreen/EditApartmentScreen";
 import { ApartmentType } from "../../types/ApartmentType";
 import HttpClient from "../httpClient";
 
 export const editApartment = async (
-  apartment: Omit<ApartmentType, "id">,
+  apartment: EditApartmentScreenValues,
   id: number
 ) => {
   try {

@@ -47,4 +47,32 @@ export const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 10,
   },
+  imagePreviewContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 20,
+  },
+  avatarImage: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    borderWidth: 2,
+    borderColor: "#ddd",
+  },
+  removeImageButton: {
+    marginTop: 10,
+    backgroundColor: "red",
+    padding: 10,
+    borderRadius: 5,
+  },
+  imagePickerButton: {
+    backgroundColor: "#007bff",
+    padding: 15,
+    borderRadius: 50,
+    alignItems: "center",
+    marginTop: 10,
+    marginBottom: 20,
+    width: 100,
+    height: 50,
+  },
 });

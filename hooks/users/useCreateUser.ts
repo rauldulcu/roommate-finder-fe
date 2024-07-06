@@ -9,6 +9,7 @@ export const useCreateUser = () => {
     data: createdUser,
     error: createUserError,
     mutate: createUser,
+    isPending: createUserPending,
   } = useMutation({
     mutationKey: ["updateUser"],
     mutationFn: (user: UserType) => postUser(user),
@@ -20,5 +21,5 @@ export const useCreateUser = () => {
     },
   });
 
-  return { createUser, createdUser, createUserError };
+  return { createUser, createdUser, createUserError, createUserPending };
 };

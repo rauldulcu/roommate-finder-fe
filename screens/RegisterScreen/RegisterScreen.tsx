@@ -1,27 +1,34 @@
 import React, { useState } from "react";
-import { View, Image } from "react-native";
-import { Button, Text } from "@rneui/themed";
-import { PrimaryButton, PrimaryInput } from "../../components";
+import { View, Image, Alert, TouchableOpacity } from "react-native";
+import { Button, Input, Text } from "@rneui/themed";
+import {
+  DateInput,
+  FilterTag,
+  PrimaryButton,
+  PrimaryInput,
+} from "../../components";
 import { NavigationProps } from "../../types";
 import { styles } from "./styles";
+import { styles as inputStyle } from "../../components/PrimaryInput/styles";
 import { Controller, useForm } from "react-hook-form";
 import { UserType } from "../../types/UserType";
-import DateInput from "../../components/DateInput/DateInput";
-import FilterTag from "../../components/FilterTag";
 import { ScrollView } from "react-native-gesture-handler";
 import { dateToISO } from "../../common/formatDate";
 import { useCreateUser } from "../../hooks/users/useCreateUser";
+import * as ImagePicker from "expo-image-picker";
+import { uploadImage } from "../../common/uploadImage";
 
 const RegisterScreen: React.FC<NavigationProps<"Register">> = ({
   navigation,
 }) => {
   const [selectedOccupation, setSelectedOccupation] = useState<string>("");
+  const [selectedHobbies, setSelectedHobbies] = useState<string[]>([]);
+  const [avatarURL, setAvatarURL] = useState<string | null>(null);
+  const [error, setError] = useState<string>("");
 
   const handleOccupationSelect = (value: string) => {
     setSelectedOccupation(value);
   };
-
-  const [selectedHobbies, setSelectedHobbies] = useState<string[]>([]);
 
   const handleHobbySelect = (value: string) => {
     const newSelectedUtilities = [...selectedHobbies];
@@ -38,7 +45,7 @@ const RegisterScreen: React.FC<NavigationProps<"Register">> = ({
 
   const isHobbySelected = (value: string) => selectedHobbies.includes(value);
 
-  const { createUser } = useCreateUser();
+  const { createUser, createUserPending, createUserError } = useCreateUser();
 
   const {
     control,
@@ -54,16 +61,63 @@ const RegisterScreen: React.FC<NavigationProps<"Register">> = ({
       gender: "",
       occupation: "",
       email: "",
+      password: "",
     },
   });
 
-  const onSubmit = (data: UserType) => {
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (status !== "granted") {
+      Alert.alert(
+        "Permission Denied",
+        `Sorry, we need camera roll permissions to make this work!`
+      );
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      aspect: [3, 4],
+      quality: 1,
+      allowsEditing: true,
+    });
+
+    if (!result.canceled && result.assets) {
+      setAvatarURL(result.assets[0].uri);
+    }
+  };
+
+  const removeImage = () => {
+    setAvatarURL(null);
+  };
+
+  const onSubmit = async (data: UserType) => {
+    let imageURL;
+    if (avatarURL) {
+      imageURL = await uploadImage(avatarURL);
+    }
     data.dateOfBirth = dateToISO(data.dateOfBirth);
     data.hobbies = selectedHobbies;
     data.occupation = selectedOccupation;
-    createUser(data);
-    navigation.navigate("Login");
+    data.avatarURL = imageURL ? imageURL : undefined;
+    createUser(data, {
+      onSuccess: () => {
+        navigation.navigate("Login");
+      },
+      onError: () => {
+        setError("Email already in use");
+      },
+    });
   };
+
+  if (createUserPending) {
+    return (
+      <View style={{ flex: 1, alignContent: "center" }}>
+        <Text>Loading apartment info..</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -131,7 +185,7 @@ const RegisterScreen: React.FC<NavigationProps<"Register">> = ({
             />
           )}
         />
-        <Controller
+        {/* <Controller
           name="name"
           control={control}
           rules={{ required: true }}
@@ -142,17 +196,42 @@ const RegisterScreen: React.FC<NavigationProps<"Register">> = ({
               value={value}
             />
           )}
-        />
+        /> */}
         <Controller
           name="email"
           control={control}
           rules={{ required: true }}
           render={({ field: { onChange, value } }) => (
-            <PrimaryInput
-              placeholder="Email address"
-              onChange={(inputValue) => onChange(inputValue)}
+            <View>
+              {error && (
+                <Text style={{ color: "red", fontSize: 16, marginLeft: 15 }}>
+                  {error}
+                </Text>
+              )}
+              <PrimaryInput
+                placeholder="Email address"
+                onChange={(inputValue) => onChange(inputValue)}
+                value={value}
+                keyboardType="email-address"
+              />
+            </View>
+          )}
+        />
+        <Controller
+          name="password"
+          control={control}
+          rules={{ required: true }}
+          render={({ field: { onChange, value } }) => (
+            <Input
+              containerStyle={inputStyle.inputContainer}
+              inputContainerStyle={inputStyle.inputContainerStyle}
+              inputStyle={inputStyle.inputStyle}
+              leftIconContainerStyle={inputStyle.iconStyle}
+              labelStyle={{ marginLeft: 15 }}
+              placeholder="Password"
               value={value}
-              keyboardType="email-address"
+              onChangeText={(inputValue) => onChange(inputValue)}
+              secureTextEntry={true}
             />
           )}
         />
@@ -235,6 +314,28 @@ const RegisterScreen: React.FC<NavigationProps<"Register">> = ({
             onSelect={handleOccupationSelect}
           />
         </View>
+
+        <Text style={styles.sectionTitle}>Select a profile image</Text>
+        {avatarURL ? (
+          <View style={styles.imagePreviewContainer}>
+            <Image source={{ uri: avatarURL }} style={styles.avatarImage} />
+            <TouchableOpacity
+              onPress={removeImage}
+              style={styles.removeImageButton}
+            >
+              <Text>Remove Image</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={{ alignItems: "center", marginBottom: 50 }}>
+            <TouchableOpacity
+              onPress={pickImage}
+              style={styles.imagePickerButton}
+            >
+              <Text>Pick</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         <View style={{ alignItems: "center" }}>
           <PrimaryButton

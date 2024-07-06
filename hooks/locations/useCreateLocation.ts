@@ -10,7 +10,7 @@ export const useCreateLocation = () => {
     mutate: createLocation,
   } = useMutation({
     mutationKey: ["createLocation"],
-    mutationFn: (location: LocationType) => postLocation(location),
+    mutationFn: (location: Omit<LocationType, "id">) => postLocation(location),
     onError: (error) => {
       console.error("Failed to create location", error);
     },

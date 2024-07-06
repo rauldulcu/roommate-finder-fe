@@ -11,54 +11,50 @@ import {
 import { Avatar, Icon } from "@rneui/themed";
 import Carousel from "react-native-snap-carousel";
 import BottomSheet from "@gorhom/bottom-sheet";
-import { PrimaryButton } from "../../components";
-import UtilityBadge from "../../components/UtilityBadge/UtilityBadge";
+import { DeleteModal, PrimaryButton, UtilityBadge } from "../../components";
 import { NavigationProps } from "../../types";
 import { useGetApartmentById } from "../../hooks/apartments/useGetApartmentById";
 import { utilityIconMapping } from "../../common/UtilityMapping";
 import { Divider } from "@rneui/base";
 import { calculateYearsFromTimestamp } from "../../common/calculateYears";
 import { ScrollView } from "react-native-gesture-handler";
+import { useDeleteApartment } from "../../hooks/apartments/useDeleteApartment";
+import { styles } from "./styles";
+import { useUser } from "../../context/UserContext/UserContext";
 
 interface CarouselItem {
-  url: string;
+  imageURL: string;
 }
 
-const PropertyDetailScreen: React.FC<NavigationProps<"ApartmentInfo">> = ({
+const ApartmentInfoScreen: React.FC<NavigationProps<"ApartmentInfo">> = ({
   navigation,
   route,
 }) => {
   const apartmentId = route!.params.apartmentId;
+  const { apartment, apartmentError, apartmentLoading } =
+    useGetApartmentById(apartmentId);
+  const { loggedUser } = useUser();
+  const { deleteApartmentId } = useDeleteApartment();
   const bottomSheetRef = React.useRef(null);
   const [isOpen, setIsOpen] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const toggleOptions = () => setShowOptions(!showOptions);
 
   const renderCarouselItem = ({ item }: { item: CarouselItem }) => {
     return (
       <View>
-        <Image source={{ uri: item.url }} style={styles.carouselImage} />
+        <Image
+          source={{ uri: item.imageURL }}
+          style={styles.carouselImage}
+          fadeDuration={200}
+        />
       </View>
     );
   };
 
-  const exampleItems = [
-    {
-      url: "https://moco360.media/wp-content/uploads/2017/12/rsz_dsc_7550_copy.jpg",
-    },
-    {
-      url: "https://images.adsttc.com/media/images/5be3/3bc4/08a5/e549/e300/031a/newsletter/42449.jpg?1541618579",
-    },
-    {
-      url: "https://images.adsttc.com/media/images/5be3/3a40/08a5/e549/e300/0315/slideshow/42442.jpg?1541618191",
-    },
-  ];
-
   const screenWidth = Dimensions.get("window").width;
-
-  const { apartment, apartmentError, apartmentLoading } =
-    useGetApartmentById(apartmentId);
 
   const makePhoneCall = (phoneNumber: string) => {
     const url = `tel:${phoneNumber}`;
@@ -72,6 +68,21 @@ const PropertyDetailScreen: React.FC<NavigationProps<"ApartmentInfo">> = ({
         }
       })
       .catch((err) => console.error("An error occurred", err));
+  };
+
+  const carouselData = apartment?.imageURLs
+    ? apartment!.imageURLs.map((image) => ({ imageURL: image.imageURL }))
+    : [
+        {
+          imageURL:
+            "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg",
+        },
+      ];
+
+  const handleDelete = () => {
+    deleteApartmentId(apartment!.id);
+    setShowModal(false);
+    navigation.navigate("Home");
   };
 
   if (apartmentLoading) {
@@ -104,9 +115,11 @@ const PropertyDetailScreen: React.FC<NavigationProps<"ApartmentInfo">> = ({
         >
           <Icon name="arrow-back" type="material" color="black" size={30} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.optionButton} onPress={toggleOptions}>
-          <Icon name="more-vert" type="material" color="black" size={30} />
-        </TouchableOpacity>
+        {apartment.owner.id === loggedUser?.id && (
+          <TouchableOpacity style={styles.optionButton} onPress={toggleOptions}>
+            <Icon name="more-vert" type="material" color="black" size={30} />
+          </TouchableOpacity>
+        )}
         {showOptions && (
           <View style={styles.optionsCard}>
             <TouchableOpacity
@@ -121,6 +134,7 @@ const PropertyDetailScreen: React.FC<NavigationProps<"ApartmentInfo">> = ({
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
+                setShowModal(true);
                 setShowOptions(false);
               }}
             >
@@ -130,14 +144,28 @@ const PropertyDetailScreen: React.FC<NavigationProps<"ApartmentInfo">> = ({
             </TouchableOpacity>
           </View>
         )}
-        <Carousel
-          data={exampleItems}
-          renderItem={renderCarouselItem}
-          sliderWidth={screenWidth}
-          itemWidth={screenWidth}
-          vertical={false}
-          layoutCardOffset={50}
+        <DeleteModal
+          isOpen={showModal}
+          handleDelete={handleDelete}
+          closeModal={() => setShowModal(false)}
         />
+        {apartment.imageURLs.length > 0 ? (
+          <Carousel
+            data={carouselData}
+            renderItem={renderCarouselItem}
+            sliderWidth={screenWidth}
+            itemWidth={screenWidth}
+            vertical={false}
+            layoutCardOffset={50}
+          />
+        ) : (
+          <Image
+            source={{
+              uri: "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg",
+            }}
+            style={{ width: screenWidth, height: 450 }}
+          />
+        )}
         <BottomSheet
           ref={bottomSheetRef}
           index={0}
@@ -153,11 +181,13 @@ const PropertyDetailScreen: React.FC<NavigationProps<"ApartmentInfo">> = ({
                 <Avatar
                   rounded
                   source={{
-                    uri: "https://i.pinimg.com/736x/0d/64/98/0d64989794b1a4c9d89bff571d3d5842.jpg",
+                    uri:
+                      apartment.owner.avatarURL ||
+                      "https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1",
                   }}
-                  size="large"
+                  size="medium"
                 />
-                <Text style={{ fontWeight: "bold", fontSize: 15 }}>
+                <Text style={{ fontWeight: "bold", fontSize: 16 }}>
                   {apartment.owner.name}
                 </Text>
               </View>
@@ -224,78 +254,4 @@ const PropertyDetailScreen: React.FC<NavigationProps<"ApartmentInfo">> = ({
     );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "white",
-    alignContent: "center",
-  },
-  backButton: {
-    position: "absolute",
-    top: 50,
-    left: 20,
-    zIndex: 10,
-  },
-  optionButton: {
-    position: "absolute",
-    top: 50,
-    right: 20,
-    zIndex: 10,
-  },
-  carouselImage: {
-    width: "100%",
-    height: "75%",
-  },
-  card: {
-    borderRadius: 16,
-    padding: 16,
-  },
-  landlordInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  propertyTitle: {
-    fontWeight: "bold",
-    fontSize: 25,
-    marginBottom: 10,
-    marginTop: 15,
-  },
-  tags: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginTop: 10,
-  },
-  description: {},
-  price: {
-    fontWeight: "bold",
-    fontSize: 25,
-    marginBottom: 15,
-    marginTop: 35,
-  },
-  optionsCard: {
-    position: "absolute",
-    right: 30,
-    top: 80,
-    alignItems: "center",
-    backgroundColor: "white",
-    gap: 10,
-    padding: 10,
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5,
-    zIndex: 20,
-  },
-  touchOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "transparent",
-  },
-});
-
-export default PropertyDetailScreen;
+export default ApartmentInfoScreen;

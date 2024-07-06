@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useRef } from "react";
-import { Image, View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import FilterTag from "../../components/FilterTag";
-import { PrimaryButton, PrimaryInput } from "../../components";
+import { Image, View, Text, TouchableOpacity, Alert } from "react-native";
+import { FilterTag, PrimaryButton, PrimaryInput } from "../../components";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { Divider, Icon } from "@rneui/base";
 import { NavigationProps } from "../../types";
@@ -14,6 +13,10 @@ import {
 import { LocationType } from "../../types/LocationType";
 import { useCreateApartment } from "../../hooks/apartments/useCreateApartment";
 import { useCreateLocation } from "../../hooks/locations/useCreateLocation";
+import * as ImagePicker from "expo-image-picker";
+import { uploadImage } from "../../common/uploadImage";
+import { styles } from "./styles";
+import { useUser } from "../../context/UserContext/UserContext";
 
 export type CreatePostScreenValues = {
   title: string;
@@ -24,24 +27,28 @@ export type CreatePostScreenValues = {
   utilities: string[];
   locationId: number | undefined;
   ownerId: number;
+  imageURLs?: string[];
 };
 
 const CreatePostScreen: React.FC<NavigationProps<"CreatePost">> = ({
   navigation,
 }) => {
   const [selectedZone, setSelectedZone] = useState<string | null>(null);
-
   const [selectedUtilities, setSelectedUtilities] = useState<string[]>([]);
-
-  const [apartmentLocation, setApartmentLocation] =
-    useState<LocationType | null>(null);
+  const [apartmentLocation, setApartmentLocation] = useState<Omit<
+    LocationType,
+    "id"
+  > | null>(null);
+  const [files, setFiles] = useState<string[]>([]);
+  const [error, setError] = useState<string>("");
 
   const snapPoints = useMemo(() => ["75%"], []);
   const bottomSheetRef = useRef<BottomSheet>(null);
 
+  const { loggedUser, loading } = useUser();
   const { createLocation } = useCreateLocation();
 
-  const { createApartment } = useCreateApartment();
+  const { createApartment, createApartmentPending } = useCreateApartment();
 
   const handleZoneSelect = (value: string) => {
     setSelectedZone(value);
@@ -84,33 +91,84 @@ const CreatePostScreen: React.FC<NavigationProps<"CreatePost">> = ({
       price: 0,
       zone: "",
       utilities: [],
+      imageURLs: undefined,
     },
   });
 
-  const onSubmit = (data: CreatePostScreenValues) => {
-    apartmentLocation &&
-      createLocation(
-        {
-          address: apartmentLocation.address,
-          latitude: apartmentLocation.latitude,
-          longitude: apartmentLocation.longitude,
-          zone: selectedZone!,
-        },
-        {
-          onSuccess: (createdLocation) => {
-            const apartmentData = {
-              ...data,
-              utilities: selectedUtilities,
-              zone: createdLocation.zone,
-              locationId: createdLocation.id,
-              ownerId: 6,
-            };
-            createApartment(apartmentData);
-            navigation.navigate("Home");
-          },
-        }
+  const pickImages = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (status !== "granted") {
+      Alert.alert(
+        "Permission Denied",
+        `Sorry, we need camera roll permissions to make this work!`
       );
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      aspect: [3, 4],
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets) {
+      setFiles(result.assets.map((asset) => asset.uri));
+      setError("");
+    }
   };
+
+  const removeImage = (index: number) => {
+    setFiles(files.filter((_, i) => i !== index));
+  };
+
+  const onSubmit = async (data: CreatePostScreenValues) => {
+    try {
+      let imageUrls: string[];
+      if (files) {
+        const imageUploadPromises = files.map((file) => uploadImage(file));
+        imageUrls = (await Promise.all(imageUploadPromises)) as string[];
+      } else {
+        imageUrls = [];
+      }
+
+      apartmentLocation &&
+        createLocation(
+          {
+            address: apartmentLocation.address,
+            latitude: apartmentLocation.latitude,
+            longitude: apartmentLocation.longitude,
+            zone: selectedZone!,
+          },
+          {
+            onSuccess: (createdLocation) => {
+              const apartmentData = {
+                ...data,
+                utilities: selectedUtilities,
+                zone: createdLocation.zone,
+                locationId: createdLocation.id,
+                ownerId: loggedUser!.id,
+                imageURLs: imageUrls,
+              };
+              createApartment(apartmentData);
+              navigation.navigate("Home");
+            },
+          }
+        );
+    } catch (error) {
+      console.error("Error uploading images: ", error);
+      setError("Error uploading images");
+    }
+  };
+
+  if (createApartmentPending || loading) {
+    return (
+      <View style={{ flex: 1, alignContent: "center" }}>
+        <Text>Loading apartment info..</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1 }}>
@@ -256,6 +314,27 @@ const CreatePostScreen: React.FC<NavigationProps<"CreatePost">> = ({
                 selected={selectedZone === "ZORILOR"}
                 onSelect={handleZoneSelect}
               />
+              <FilterTag
+                value="CENTRU"
+                label="Centru"
+                icon="map"
+                selected={selectedZone === "CENTRU"}
+                onSelect={handleZoneSelect}
+              />
+              <FilterTag
+                value="GRUIA"
+                label="Gruia"
+                icon="map"
+                selected={selectedZone === "GRUIA"}
+                onSelect={handleZoneSelect}
+              />
+              <FilterTag
+                value="GHEORGHENI"
+                label="Gheorgheni"
+                icon="map"
+                selected={selectedZone === "GHEORGHENI"}
+                onSelect={handleZoneSelect}
+              />
             </View>
 
             <Text style={styles.label}>Utilities (Multiple Selection)</Text>
@@ -303,6 +382,41 @@ const CreatePostScreen: React.FC<NavigationProps<"CreatePost">> = ({
                 onSelect={handleUtilitySelect}
               />
             </View>
+
+            <TouchableOpacity onPress={pickImages}>
+              <Text style={styles.label}>Choose Images</Text>
+            </TouchableOpacity>
+            {files ? (
+              <View style={{ flex: 1, flexDirection: "row", flexWrap: "wrap" }}>
+                {files.map((file, index) => (
+                  <View key={index} style={styles.imageContainer}>
+                    <Image
+                      source={{ uri: file }}
+                      style={{
+                        width: 100,
+                        height: 100,
+                        borderRadius: 8,
+                        margin: 5,
+                      }}
+                    />
+                    <TouchableOpacity
+                      style={styles.deleteButton}
+                      onPress={() => removeImage(index)}
+                    >
+                      <Icon
+                        name="close"
+                        type="material"
+                        color="white"
+                        size={15}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <Text>{error}</Text>
+            )}
+
             <Divider style={{ marginTop: 15 }} />
 
             <View style={{ alignItems: "center", marginTop: 30 }}>
@@ -322,72 +436,5 @@ const CreatePostScreen: React.FC<NavigationProps<"CreatePost">> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  backgroundImage: {
-    width: "100%",
-    height: "35%",
-    position: "absolute",
-  },
-  backButton: {
-    position: "absolute",
-    top: 70,
-    left: 20,
-    zIndex: 10,
-    borderRadius: 20,
-    padding: 5,
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.3)",
-  },
-  bottomSheetContainer: {
-    flex: 1,
-    marginTop: 50,
-  },
-  bottomSheet: {
-    flex: 1,
-    paddingHorizontal: 10,
-    paddingTop: 10,
-    backgroundColor: "#fff",
-  },
-  scrollContent: {
-    paddingBottom: 16,
-  },
-  formContainer: {
-    padding: 16,
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 16,
-    marginBottom: 4,
-    marginTop: 16,
-  },
-  textArea: {
-    height: 100,
-  },
-  tagContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-  },
-  inputContainer: {
-    paddingHorizontal: 10,
-    fontSize: 50,
-  },
-  inputContainerStyle: {
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: "grey",
-    fontSize: 16,
-    marginBottom: 24,
-  },
-});
 
 export default CreatePostScreen;

@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
-import { Image, View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import FilterTag from "../../components/FilterTag";
-import { PrimaryButton, PrimaryInput } from "../../components";
+import { Image, View, Text, TouchableOpacity, Alert } from "react-native";
+import { FilterTag, PrimaryButton, PrimaryInput } from "../../components";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { Divider, Icon } from "@rneui/base";
 import { NavigationProps } from "../../types";
@@ -15,17 +14,21 @@ import { LocationType } from "../../types/LocationType";
 import { useCreateLocation } from "../../hooks/locations/useCreateLocation";
 import { useGetApartmentById } from "../../hooks/apartments/useGetApartmentById";
 import { useUpdateApartment } from "../../hooks/apartments/useUpdateApartment";
-import { UserType } from "../../types/UserType";
+import * as ImagePicker from "expo-image-picker";
+import { uploadImage } from "../../common/uploadImage";
+import { styles } from "./styles";
 
 export type EditApartmentScreenValues = {
+  id: number;
   title: string;
   subtitle: string;
   description: string;
   price: number;
-  owner: UserType;
+  ownerId: number;
   zone: string | null;
   utilities: string[];
-  location: LocationType;
+  locationId: number;
+  imageURLs: string[];
 };
 
 const EditApartmentScreen: React.FC<NavigationProps<"EditApartment">> = ({
@@ -43,15 +46,20 @@ const EditApartmentScreen: React.FC<NavigationProps<"EditApartment">> = ({
     apartment?.location.address
   );
   const [selectedUtilities, setSelectedUtilities] = useState<string[]>([]);
-  const [apartmentLocation, setApartmentLocation] =
-    useState<LocationType | null>(null);
+  const [apartmentLocation, setApartmentLocation] = useState<Omit<
+    LocationType,
+    "id"
+  > | null>(null);
+  const [files, setFiles] = useState<string[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [error, setError] = useState<string>("");
 
   const snapPoints = useMemo(() => ["75%"], []);
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   const { createLocation } = useCreateLocation();
 
-  const { updateApartment } = useUpdateApartment();
+  const { updateApartment, updateApartmentPending } = useUpdateApartment();
 
   const handleZoneSelect = (value: string) => {
     setSelectedZone(value);
@@ -88,12 +96,45 @@ const EditApartmentScreen: React.FC<NavigationProps<"EditApartment">> = ({
       setSelectedUtilities(apartment.utilities);
       setSelectedZone(apartment.location.zone);
       setAddress(apartment.location.address);
-      setAutocompleteValue(address);
+      setAutocompleteValue(apartment.location.address);
+      setExistingImages(apartment.imageURLs.map((image) => image.imageURL));
     }
   }, [apartment]);
 
   const handleInputChange = (text: string) => {
     setAutocompleteValue(text);
+  };
+
+  const pickImages = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (status !== "granted") {
+      Alert.alert(
+        "Permission Denied",
+        `Sorry, we need camera roll permissions to make this work!`
+      );
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      aspect: [3, 4],
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets) {
+      setFiles([...files, ...result.assets.map((asset) => asset.uri)]);
+      setError("");
+    }
+  };
+
+  const removeImage = (index: number, isExisting: boolean) => {
+    if (isExisting) {
+      setExistingImages(existingImages.filter((_, i) => i !== index));
+    } else {
+      setFiles(files.filter((_, i) => i !== index));
+    }
   };
 
   const {
@@ -102,6 +143,7 @@ const EditApartmentScreen: React.FC<NavigationProps<"EditApartment">> = ({
     formState: { isValid },
   } = useForm<EditApartmentScreenValues>({
     defaultValues: {
+      id: apartment?.id,
       title: apartment?.title,
       subtitle: apartment?.subtitle,
       description: apartment?.description,
@@ -111,7 +153,20 @@ const EditApartmentScreen: React.FC<NavigationProps<"EditApartment">> = ({
     },
   });
 
-  const onSubmit = (data: EditApartmentScreenValues) => {
+  const onSubmit = async (data: EditApartmentScreenValues) => {
+    let imageURLs: string[] = [...existingImages];
+
+    if (files.length > 0) {
+      const uploadedImages = await Promise.all(
+        files.map(async (file) => {
+          const url = await uploadImage(file);
+          return url;
+        })
+      );
+
+      imageURLs = [...imageURLs, ...uploadedImages] as string[];
+    }
+
     if (apartmentLocation !== null) {
       createLocation(
         {
@@ -126,8 +181,9 @@ const EditApartmentScreen: React.FC<NavigationProps<"EditApartment">> = ({
               ...data,
               utilities: selectedUtilities,
               zone: createdLocation.zone,
-              location: createdLocation,
-              owner: apartment!.owner,
+              locationId: createdLocation.id,
+              ownerId: apartment!.owner.id,
+              imageURLs: imageURLs,
             };
             updateApartment({ id: apartment!.id, apartment: apartmentData });
             navigation.navigate("ApartmentInfo", {
@@ -137,19 +193,23 @@ const EditApartmentScreen: React.FC<NavigationProps<"EditApartment">> = ({
         }
       );
     } else {
-      data.location = apartment!.location;
-      data.owner = apartment!.owner;
-      data.zone = selectedZone;
-      data.utilities = selectedUtilities;
-      updateApartment({ id: apartment!.id, apartment: data });
+      const apartmentData = {
+        ...data,
+        locationId: apartment!.location.id,
+        ownerId: apartment!.owner.id,
+        zone: selectedZone,
+        utilities: selectedUtilities,
+        imageURLs: imageURLs,
+      };
+      updateApartment({ id: apartment!.id, apartment: apartmentData });
       navigation.navigate("ApartmentInfo", { apartmentId: apartment!.id });
     }
   };
 
-  if (apartmentLoading) {
+  if (apartmentLoading || updateApartmentPending) {
     return (
       <View style={{ flex: 1, alignContent: "center" }}>
-        <Text>Loading apartment info..</Text>
+        <Text>Loading..</Text>
       </View>
     );
   }
@@ -310,6 +370,27 @@ const EditApartmentScreen: React.FC<NavigationProps<"EditApartment">> = ({
                 selected={selectedZone === "ZORILOR"}
                 onSelect={handleZoneSelect}
               />
+              <FilterTag
+                value="CENTRU"
+                label="Centru"
+                icon="map"
+                selected={selectedZone === "CENTRU"}
+                onSelect={handleZoneSelect}
+              />
+              <FilterTag
+                value="GRUIA"
+                label="Gruia"
+                icon="map"
+                selected={selectedZone === "GRUIA"}
+                onSelect={handleZoneSelect}
+              />
+              <FilterTag
+                value="GHEORGHENI"
+                label="Gheorgheni"
+                icon="map"
+                selected={selectedZone === "GHEORGHENI"}
+                onSelect={handleZoneSelect}
+              />
             </View>
 
             <Text style={styles.label}>Utilities (Multiple Selection)</Text>
@@ -357,6 +438,64 @@ const EditApartmentScreen: React.FC<NavigationProps<"EditApartment">> = ({
                 onSelect={handleUtilitySelect}
               />
             </View>
+            <TouchableOpacity onPress={pickImages}>
+              <Text style={styles.label}>Choose Images</Text>
+            </TouchableOpacity>
+            {files.length > 0 || existingImages.length > 0 ? (
+              <View style={{ flex: 1, flexDirection: "row", flexWrap: "wrap" }}>
+                {existingImages.map((file, index) => (
+                  <View key={index} style={styles.imageContainer}>
+                    <Image
+                      source={{ uri: file }}
+                      style={{
+                        width: 100,
+                        height: 100,
+                        borderRadius: 8,
+                        margin: 5,
+                      }}
+                    />
+                    <TouchableOpacity
+                      style={styles.deleteButton}
+                      onPress={() => removeImage(index, true)}
+                    >
+                      <Icon
+                        name="close"
+                        type="material"
+                        color="white"
+                        size={15}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+                {files.map((file, index) => (
+                  <View key={index} style={styles.imageContainer}>
+                    <Image
+                      source={{ uri: file }}
+                      style={{
+                        width: 100,
+                        height: 100,
+                        borderRadius: 8,
+                        margin: 5,
+                      }}
+                    />
+                    <TouchableOpacity
+                      style={styles.deleteButton}
+                      onPress={() => removeImage(index, false)}
+                    >
+                      <Icon
+                        name="close"
+                        type="material"
+                        color="white"
+                        size={15}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <Text>{error}</Text>
+            )}
+
             <Divider style={{ marginTop: 15 }} />
 
             <View style={{ alignItems: "center", marginTop: 30 }}>
@@ -372,72 +511,5 @@ const EditApartmentScreen: React.FC<NavigationProps<"EditApartment">> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  backgroundImage: {
-    width: "100%",
-    height: "35%",
-    position: "absolute",
-  },
-  backButton: {
-    position: "absolute",
-    top: 70,
-    left: 20,
-    zIndex: 10,
-    borderRadius: 20,
-    padding: 5,
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.3)",
-  },
-  bottomSheetContainer: {
-    flex: 1,
-    marginTop: 50,
-  },
-  bottomSheet: {
-    flex: 1,
-    paddingHorizontal: 10,
-    paddingTop: 10,
-    backgroundColor: "#fff",
-  },
-  scrollContent: {
-    paddingBottom: 16,
-  },
-  formContainer: {
-    padding: 16,
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 16,
-    marginBottom: 4,
-    marginTop: 16,
-  },
-  textArea: {
-    height: 100,
-  },
-  tagContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-  },
-  inputContainer: {
-    paddingHorizontal: 10,
-    fontSize: 50,
-  },
-  inputContainerStyle: {
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: "grey",
-    fontSize: 16,
-    marginBottom: 24,
-  },
-});
 
 export default EditApartmentScreen;

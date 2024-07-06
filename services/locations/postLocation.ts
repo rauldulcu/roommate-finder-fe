@@ -1,7 +1,7 @@
 import { LocationType } from "../../types/LocationType";
 import HttpClient from "../httpClient";
 
-export const postLocation = async (location: LocationType) => {
+export const postLocation = async (location: Omit<LocationType, "id">) => {
   try {
     const response = await HttpClient.base.post<LocationType>(
       "/locations",

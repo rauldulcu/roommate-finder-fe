@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, StyleSheet, Dimensions } from "react-native";
+import { View, Text, ScrollView } from "react-native";
 import FilterTag from "../FilterTag";
 import PrimaryButton from "../PrimaryButton";
 import { Divider } from "@rneui/base";
 import { FilterType } from "./FiltersType";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { StackParamList } from "../../App";
-import { useFilters } from "../../context/FiltersContext/FitlersContext";
-
-const screenWidth = Dimensions.get("window").width;
+import { useFilters } from "../../context/FiltersContext/FiltersContext";
+import { styles } from "./styles";
 
 const FiltersComponent: React.FC = () => {
   const { filters, updateFilters, clearFilters } = useFilters();
@@ -50,6 +49,13 @@ const FiltersComponent: React.FC = () => {
             onSelect={() => handleLocalFilterSelect("zoneFilters", "MANASTUR")}
           />
           <FilterTag
+            value="MARASTI"
+            label="Mărăști"
+            icon="map"
+            selected={localFilters.zoneFilters.includes("MARASTI")}
+            onSelect={() => handleLocalFilterSelect("zoneFilters", "MARASTI")}
+          />
+          <FilterTag
             value="GRIGORESCU"
             label="Grigorescu"
             icon="map"
@@ -59,18 +65,34 @@ const FiltersComponent: React.FC = () => {
             }
           />
           <FilterTag
-            value="MARASTI"
-            label="Mărăști"
-            icon="map"
-            selected={localFilters.zoneFilters.includes("MARASTI")}
-            onSelect={() => handleLocalFilterSelect("zoneFilters", "MARASTI")}
-          />
-          <FilterTag
             value="ZORILOR"
             label="Zorilor"
             icon="map"
             selected={localFilters.zoneFilters.includes("ZORILOR")}
             onSelect={() => handleLocalFilterSelect("zoneFilters", "ZORILOR")}
+          />
+          <FilterTag
+            value="CENTRU"
+            label="Centru"
+            icon="map"
+            selected={localFilters.zoneFilters.includes("CENTRU")}
+            onSelect={() => handleLocalFilterSelect("zoneFilters", "CENTRU")}
+          />
+          <FilterTag
+            value="GRUIA"
+            label="Gruia"
+            icon="map"
+            selected={localFilters.zoneFilters.includes("GRUIA")}
+            onSelect={() => handleLocalFilterSelect("zoneFilters", "GRUIA")}
+          />
+          <FilterTag
+            value="GHEORGHENI"
+            label="Gheorgheni"
+            icon="map"
+            selected={localFilters.zoneFilters.includes("GHEORGHENI")}
+            onSelect={() =>
+              handleLocalFilterSelect("zoneFilters", "GHEORGHENI")
+            }
           />
         </View>
       </View>
@@ -313,41 +335,12 @@ const FiltersComponent: React.FC = () => {
             borderColor: "black",
             borderRadius: 16,
           }}
+          containerStyle={{ borderRadius: 16, width: 150, height: 40 }}
           titleStyle={{ color: "black" }}
         />
       </View>
     </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 10,
-  },
-  section: {
-    marginBottom: 15,
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  header: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 10,
-  },
-  tagContainer: {
-    width: screenWidth * 0.9,
-    alignContent: "center",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "flex-start",
-  },
-  buttonContainer: {
-    alignContent: "center",
-    alignItems: "center",
-    margin: 20,
-    gap: 16,
-  },
-});
 
 export default FiltersComponent;

@@ -11,9 +11,7 @@ const WelcomeScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Image
-        source={{ uri: "path_to_your_logo.png" }} // Replace with your logo's path
-      />
+      <Image source={{ uri: "path_to_your_logo.png" }} />
       <Image source={require("../../assets/welcomeIcon.png")} alt="img" />
       <Text style={styles.subtitle}>
         Browse and find potential roommates and rental buildings in the city.

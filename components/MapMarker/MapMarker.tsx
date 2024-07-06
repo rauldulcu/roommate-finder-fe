@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from "react-native";
 import { Marker } from "react-native-maps";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { StackParamList } from "../../App";
+import { styles } from "./styles";
 
 type MapMarkerProps = {
   latitude: number;
@@ -32,22 +33,5 @@ const MapMarker: React.FC<MapMarkerProps> = ({
     </Marker>
   );
 };
-
-const styles = StyleSheet.create({
-  markerStyle: {
-    width: 60, // Increased width
-    height: 30, // Decreased height
-    backgroundColor: "#fff",
-    borderRadius: 15, // Adjusted to fit the new shape
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#000",
-  },
-  textStyle: {
-    fontWeight: "bold",
-    color: "#000",
-  },
-});
 
 export default MapMarker;

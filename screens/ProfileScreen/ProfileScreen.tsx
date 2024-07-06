@@ -2,26 +2,28 @@ import { Avatar, Card, Divider, Icon, Text } from "@rneui/base";
 import {
   SafeAreaView,
   TouchableOpacity,
-  StyleSheet,
   View,
-  Dimensions,
   ActivityIndicator,
 } from "react-native";
 import { NavigationProps } from "../../types";
 import { ScrollView } from "react-native-gesture-handler";
-import UtilityBadge from "../../components/UtilityBadge/UtilityBadge";
 import { useGetUserById } from "../../hooks/users/useGetUserById";
 import { formatDate } from "../../common/formatDate";
 import { utilityIconMapping } from "../../common/UtilityMapping";
-
-const screenWidth = Dimensions.get("window").width;
+import { UtilityBadge } from "../../components";
+import { styles } from "./styles";
+import { useUser } from "../../context/UserContext/UserContext";
 
 const ProfileScreen: React.FC<NavigationProps<"Profile">> = ({
   navigation,
 }) => {
-  const { user, userError, userLoading, refetch } = useGetUserById(2);
+  const { loggedUser, loading } = useUser();
 
-  if (userLoading) {
+  const { user, userError, userLoading, refetch } = useGetUserById(
+    loggedUser!.id
+  );
+
+  if (loading || userLoading) {
     return (
       <View style={styles.centeredView}>
         <ActivityIndicator size="large" color="#0000ff" />
@@ -36,8 +38,6 @@ const ProfileScreen: React.FC<NavigationProps<"Profile">> = ({
       </View>
     );
   }
-
-  refetch();
 
   if (user) {
     return (
@@ -62,7 +62,9 @@ const ProfileScreen: React.FC<NavigationProps<"Profile">> = ({
             <Avatar
               rounded
               source={{
-                uri: "https://images.pexels.com/photos/1212984/pexels-photo-1212984.jpeg",
+                uri:
+                  user.avatarURL ||
+                  "https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1",
               }}
               size="xlarge"
             />
@@ -115,12 +117,12 @@ const ProfileScreen: React.FC<NavigationProps<"Profile">> = ({
               <Icon name="work" type="material" />
               <Text style={styles.infoText}>Occupation: {user.occupation}</Text>
             </View>
-            <View style={styles.infoRow}>
+            {/* <View style={styles.infoRow}>
               <Icon name="school" type="material" />
               <Text style={styles.infoText}>
                 Went to: Technical University of Cluj-Napoca
               </Text>
-            </View>
+            </View> */}
             <View style={styles.infoRow}>
               <Icon name="email" type="material" />
               <Text style={styles.infoText}>Email: {user.email}</Text>
@@ -133,71 +135,3 @@ const ProfileScreen: React.FC<NavigationProps<"Profile">> = ({
 };
 
 export default ProfileScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: "white",
-    alignContent: "center",
-  },
-  card: {
-    borderRadius: 16,
-    elevation: 5,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    marginTop: 75,
-  },
-  tags: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginTop: 10,
-  },
-  backButton: {
-    position: "absolute",
-    top: 25,
-    left: 5,
-    zIndex: 10,
-  },
-  editButton: {
-    position: "absolute",
-    top: 25,
-    right: 5,
-    zIndex: 10,
-  },
-  section: {
-    marginBottom: 15,
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  sectionTitle: {
-    fontWeight: "900",
-    fontSize: 24,
-    marginBottom: 10,
-    marginTop: 20,
-  },
-  infoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-    padding: 3,
-  },
-  infoText: {
-    marginLeft: 10,
-    fontSize: 16,
-  },
-  tagContainer: {
-    width: screenWidth * 0.9,
-    alignContent: "center",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "flex-start",
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});

@@ -1,17 +1,33 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
 import MapView from "react-native-maps";
 import * as Location from "expo-location";
-import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
-import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
-import { Navigation } from "../../components";
-import ApartmentCard from "../../components/ApartmentCard";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
+  BackHandler,
+} from "react-native";
+import BottomSheet from "@gorhom/bottom-sheet";
+import { ApartmentCard, MapMarker, Navigation } from "../../components";
 import { NavigationProps } from "../../types";
 import { useGetApartments } from "../../hooks/apartments/useGetApartments";
-import MapMarker from "../../components/MapMarker/MapMarker";
 import { filterApartments } from "../../common/filterApartments";
 import { ApartmentType } from "../../types/ApartmentType";
-import { useFilters } from "../../context/FiltersContext/FitlersContext";
+import { useFilters } from "../../context/FiltersContext/FiltersContext";
 import { ScrollView } from "react-native-gesture-handler";
+import { useGetUserById } from "../../hooks/users/useGetUserById";
+import { sortApartments } from "../../common/calculateScore";
+import { styles } from "./styles";
+import { useUser } from "../../context/UserContext/UserContext";
+import { useFocusEffect } from "@react-navigation/native";
 
 type RegionType = {
   latitude: number;
@@ -22,7 +38,7 @@ type RegionType = {
 
 const HomeScreen: React.FC<NavigationProps<"Home">> = ({ navigation }) => {
   const { filters } = useFilters();
-
+  const { loggedUser, loading } = useUser();
   const [filteredApartments, setFilteredApartments] = useState<
     ApartmentType[] | undefined
   >(undefined);
@@ -44,6 +60,29 @@ const HomeScreen: React.FC<NavigationProps<"Home">> = ({ navigation }) => {
     latitudeDelta: 0.005,
     longitudeDelta: 0.005,
   });
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        Alert.alert("Hold on!", "Are you sure you want to exit the app?", [
+          {
+            text: "Cancel",
+            onPress: () => null,
+            style: "cancel",
+          },
+          { text: "YES", onPress: () => BackHandler.exitApp() },
+        ]);
+        return true;
+      };
+
+      const backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onBackPress
+      );
+
+      return () => backHandler.remove();
+    }, [])
+  );
 
   useEffect(() => {
     (async () => {
@@ -68,11 +107,16 @@ const HomeScreen: React.FC<NavigationProps<"Home">> = ({ navigation }) => {
   const snapPoints = useMemo(() => ["7%", "91%"], []);
 
   const { apartments, apartmentsLoading, apartmentsError } = useGetApartments();
+  const { user, userLoading } = useGetUserById(loggedUser!.id);
 
   useEffect(() => {
     if (apartments && region) {
       const filteredData = filterApartments(apartments, filters);
       setFilteredApartments(filteredData);
+      if (user && filteredApartments) {
+        const sortedApartments = sortApartments(user, filteredApartments);
+        setVisibleApartments([...sortedApartments]);
+      }
     }
   }, [apartments, filters]);
 
@@ -114,10 +158,13 @@ const HomeScreen: React.FC<NavigationProps<"Home">> = ({ navigation }) => {
             );
           });
 
-    setVisibleApartments(filteredMapApartments);
+    if (user && filteredMapApartments) {
+      const sortedApartments = sortApartments(user, filteredMapApartments);
+      setVisibleApartments([...sortedApartments]);
+    }
   };
 
-  if (apartmentsLoading) {
+  if (apartmentsLoading || loading) {
     return (
       <View style={styles.centeredView}>
         <ActivityIndicator size="large" color="#0000ff" />
@@ -192,13 +239,5 @@ const HomeScreen: React.FC<NavigationProps<"Home">> = ({ navigation }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});
 
 export default HomeScreen;

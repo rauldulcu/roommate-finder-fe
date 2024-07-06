@@ -3,6 +3,10 @@ import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { Icon } from "@rneui/base";
 import Drawer from "react-native-side-drawer";
 import { NavigationProp } from "@react-navigation/native";
+import { useGetApartmentByOwnerId } from "../../hooks/apartments/useGetApartmentByOwnerId";
+import { styles } from "./styles";
+import { useUser } from "../../context/UserContext/UserContext";
+import { useFilters } from "../../context/FiltersContext/FiltersContext";
 
 type DrawerProps = {
   navigation: NavigationProp<any>;
@@ -15,6 +19,10 @@ const DrawerComponent: React.FC<DrawerProps> = ({
   isOpen,
   toggleDrawer,
 }) => {
+  const { clearFilters } = useFilters();
+  const { loggedUser, handleLogout } = useUser();
+  const { apartment } = useGetApartmentByOwnerId(loggedUser!.id);
+
   const drawerContent = () => (
     <View style={styles.drawerContent}>
       <TouchableOpacity onPress={toggleDrawer} style={styles.closeButton}>
@@ -36,12 +44,35 @@ const DrawerComponent: React.FC<DrawerProps> = ({
       >
         <Text style={styles.drawerItem}>Saved</Text>
       </TouchableOpacity>
+      {apartment && (
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate("ApartmentInfo", { apartmentId: apartment.id });
+            toggleDrawer();
+          }}
+        >
+          <Text style={styles.drawerItem}>Your Apartment</Text>
+        </TouchableOpacity>
+      )}
+
       <TouchableOpacity
         onPress={() => {
           toggleDrawer();
+          handleLogout();
+          clearFilters();
+          navigation.navigate("Login");
         }}
+        style={{ position: "relative", top: 480 }}
       >
-        <Text style={styles.drawerItem}>Log Out</Text>
+        <Text
+          style={{
+            fontSize: 18,
+            marginVertical: 10,
+            color: "black",
+          }}
+        >
+          Log Out
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -58,24 +89,5 @@ const DrawerComponent: React.FC<DrawerProps> = ({
     />
   );
 };
-
-const styles = StyleSheet.create({
-  drawerContent: {
-    flex: 1,
-    height: "120%",
-    padding: 20,
-    marginTop: 75,
-    backgroundColor: "white",
-    marginBottom: -50,
-  },
-  closeButton: {
-    alignSelf: "flex-end",
-  },
-  drawerItem: {
-    fontSize: 18,
-    marginVertical: 10,
-    color: "black",
-  },
-});
 
 export default DrawerComponent;

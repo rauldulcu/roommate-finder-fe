@@ -1,11 +1,11 @@
 import { View, Image, TouchableOpacity, Text } from "react-native";
-import FiltersComponent from "../../components/FiltersComponent/FiltersComponent";
-import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import BottomSheet from "@gorhom/bottom-sheet";
 import { useMemo } from "react";
 import { styles } from "./styles";
 import { Divider, Icon } from "@rneui/base";
 import { NavigationProps } from "../../types";
 import { ScrollView } from "react-native-gesture-handler";
+import { FiltersComponent } from "../../components";
 
 const FiltersScreen: React.FC<NavigationProps<"Filters">> = ({
   navigation,

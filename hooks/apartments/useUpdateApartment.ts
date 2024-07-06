@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { editApartment } from "../../services/apartments/editApartment";
 import { ApartmentType } from "../../types/ApartmentType";
+import { EditApartmentScreenValues } from "../../screens/EditApartmentScreen/EditApartmentScreen";
 
 export const useUpdateApartment = () => {
   const queryClient = useQueryClient();
@@ -9,6 +10,7 @@ export const useUpdateApartment = () => {
     data: updatedApartment,
     error: updateApartmentError,
     mutate: updateApartment,
+    isPending: updateApartmentPending,
   } = useMutation({
     mutationKey: ["updateApartment"],
     mutationFn: ({
@@ -16,7 +18,7 @@ export const useUpdateApartment = () => {
       apartment,
     }: {
       id: number;
-      apartment: Omit<ApartmentType, "id">;
+      apartment: EditApartmentScreenValues;
     }) => editApartment(apartment, id),
     onSuccess: (data) => {
       queryClient.invalidateQueries({
@@ -29,5 +31,10 @@ export const useUpdateApartment = () => {
     },
   });
 
-  return { updateApartment, updatedApartment, updateApartmentError };
+  return {
+    updateApartment,
+    updatedApartment,
+    updateApartmentError,
+    updateApartmentPending,
+  };
 };

@@ -1,6 +1,11 @@
 import { LocationType } from "./LocationType";
 import { UserType } from "./UserType";
 
+type ImageType = {
+  id: number;
+  imageURL: string;
+};
+
 export type ApartmentType = {
   id: number;
   title: string;
@@ -10,4 +15,5 @@ export type ApartmentType = {
   owner: UserType;
   utilities: string[];
   location: LocationType;
+  imageURLs: ImageType[];
 };

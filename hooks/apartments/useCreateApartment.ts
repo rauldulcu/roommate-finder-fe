@@ -4,20 +4,20 @@ import { postApartment } from "../../services/apartments/postApartment";
 
 export const useCreateApartment = () => {
   const queryClient = useQueryClient();
-  const queryKeys = {
-    queryKey: ["apartments"],
-  };
 
   const {
     data: createdApartment,
     error: createApartmentError,
     isSuccess: createApartmentSuccess,
     mutate: createApartment,
+    isPending: createApartmentPending,
   } = useMutation({
     mutationKey: ["createApartment"],
     mutationFn: (apartment: CreatePostScreenValues) => postApartment(apartment),
     onSuccess: (data) => {
-      queryClient.invalidateQueries(queryKeys);
+      queryClient.invalidateQueries({ queryKey: ["apartments"] });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["getApartment"] });
     },
     onError: (error) => {
       console.error("Failed to create Apartment", error);
@@ -29,5 +29,6 @@ export const useCreateApartment = () => {
     createdApartment,
     createApartmentError,
     createApartmentSuccess,
+    createApartmentPending,
   };
 };

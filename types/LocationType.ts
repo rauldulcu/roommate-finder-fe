@@ -1,5 +1,5 @@
 export type LocationType = {
-  id?: number;
+  id: number;
   longitude: number;
   latitude: number;
   zone: string;
