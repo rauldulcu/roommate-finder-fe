@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { editApartment } from "../../services/apartments/editApartment";
-import { ApartmentType } from "../../types/ApartmentType";
 import { EditApartmentScreenValues } from "../../screens/EditApartmentScreen/EditApartmentScreen";
 
 export const useUpdateApartment = () => {

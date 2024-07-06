@@ -1,4 +1,4 @@
-import { ApartmentType } from "../../types/ApartmentType";
+import { ApartmentType } from "../../types";
 import HttpClient from "../httpClient";
 
 export const getApartmentByOwnerId = async (ownerId: number) => {

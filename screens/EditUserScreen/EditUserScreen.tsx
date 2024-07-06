@@ -6,7 +6,7 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-import { NavigationProps } from "../../types";
+import { NavigationProps, UserType } from "../../types";
 import {
   DateInput,
   DeleteModal,
@@ -17,7 +17,6 @@ import {
 import { ScrollView } from "react-native-gesture-handler";
 import { useGetUserById } from "../../hooks/users/useGetUserById";
 import { Controller, useForm } from "react-hook-form";
-import { UserType } from "../../types/UserType";
 import { useEffect, useState } from "react";
 import { dateToISO, formatDate } from "../../common/formatDate";
 import { useUpdateUser } from "../../hooks/users/useUpdateUser";

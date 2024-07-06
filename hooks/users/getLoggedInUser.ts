@@ -1,5 +1,5 @@
 import HttpClient from "../../services/httpClient";
-import { UserType } from "../../types/UserType";
+import { UserType } from "../../types";
 
 export const getLoggedInUser = async () => {
   try {

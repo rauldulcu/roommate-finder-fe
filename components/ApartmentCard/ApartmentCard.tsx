@@ -6,10 +6,10 @@ import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { StackParamList } from "../../App";
 import { styles } from "./styles";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { ApartmentType } from "../../types/ApartmentType";
 import { useIsApartmentSaved } from "../../hooks/apartments/useIsApartmentSaved";
 import { useSaveApartment } from "../../hooks/apartments/useSaveApartment";
 import { useUser } from "../../context/UserContext/UserContext";
+import { ApartmentType } from "../../types";
 
 type ApartmentCardProps = {
   apartment: ApartmentType;

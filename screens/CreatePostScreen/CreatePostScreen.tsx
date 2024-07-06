@@ -10,7 +10,7 @@ import {
   GooglePlaceDetail,
   GooglePlacesAutocomplete,
 } from "react-native-google-places-autocomplete";
-import { LocationType } from "../../types/LocationType";
+import { LocationType } from "../../types";
 import { useCreateApartment } from "../../hooks/apartments/useCreateApartment";
 import { useCreateLocation } from "../../hooks/locations/useCreateLocation";
 import * as ImagePicker from "expo-image-picker";

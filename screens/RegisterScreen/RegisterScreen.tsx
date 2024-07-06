@@ -7,11 +7,10 @@ import {
   PrimaryButton,
   PrimaryInput,
 } from "../../components";
-import { NavigationProps } from "../../types";
+import { NavigationProps, UserType } from "../../types";
 import { styles } from "./styles";
 import { styles as inputStyle } from "../../components/PrimaryInput/styles";
 import { Controller, useForm } from "react-hook-form";
-import { UserType } from "../../types/UserType";
 import { ScrollView } from "react-native-gesture-handler";
 import { dateToISO } from "../../common/formatDate";
 import { useCreateUser } from "../../hooks/users/useCreateUser";

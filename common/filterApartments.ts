@@ -1,5 +1,5 @@
 import { FilterType } from "../components/FiltersComponent/FiltersType";
-import { ApartmentType } from "../types/ApartmentType";
+import { ApartmentType } from "../types";
 import { calculateYearsFromTimestamp } from "./calculateYears";
 
 export const filterApartments = (

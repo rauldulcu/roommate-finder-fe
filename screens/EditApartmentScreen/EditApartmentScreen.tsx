@@ -10,7 +10,7 @@ import {
   GooglePlaceDetail,
   GooglePlacesAutocomplete,
 } from "react-native-google-places-autocomplete";
-import { LocationType } from "../../types/LocationType";
+import { LocationType } from "../../types";
 import { useCreateLocation } from "../../hooks/locations/useCreateLocation";
 import { useGetApartmentById } from "../../hooks/apartments/useGetApartmentById";
 import { useUpdateApartment } from "../../hooks/apartments/useUpdateApartment";

@@ -1,4 +1,4 @@
-import { UserType } from "../../types/UserType";
+import { UserType } from "../../types";
 import HttpClient from "../httpClient";
 
 export const getUsers = async () => {

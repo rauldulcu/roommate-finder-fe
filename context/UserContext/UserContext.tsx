@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { getLoggedInUser } from "../../hooks/users/getLoggedInUser";
-import { UserType } from "../../types/UserType";
 import { logoutUser } from "../../services/users/logoutUser";
+import { UserType } from "../../types";
 
 interface UserContextType {
   loggedUser: UserType | undefined;

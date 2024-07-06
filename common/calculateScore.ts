@@ -1,5 +1,4 @@
-import { ApartmentType } from "../types/ApartmentType";
-import { UserType } from "../types/UserType";
+import { ApartmentType, UserType } from "../types";
 
 export function calculateScore(user: UserType, apartment: ApartmentType) {
   const userHobbies = new Set(user.hobbies);

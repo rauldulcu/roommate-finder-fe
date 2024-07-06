@@ -1,4 +1,4 @@
-import { LocationType } from "../../types/LocationType";
+import { LocationType } from "../../types";
 import HttpClient from "../httpClient";
 
 export const postLocation = async (location: Omit<LocationType, "id">) => {

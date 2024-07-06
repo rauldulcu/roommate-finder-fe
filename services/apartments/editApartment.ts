@@ -1,5 +1,5 @@
 import { EditApartmentScreenValues } from "../../screens/EditApartmentScreen/EditApartmentScreen";
-import { ApartmentType } from "../../types/ApartmentType";
+import { ApartmentType } from "../../types";
 import HttpClient from "../httpClient";
 
 export const editApartment = async (

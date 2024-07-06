@@ -17,10 +17,9 @@ import {
 } from "react-native";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { ApartmentCard, MapMarker, Navigation } from "../../components";
-import { NavigationProps } from "../../types";
+import { ApartmentType, NavigationProps } from "../../types";
 import { useGetApartments } from "../../hooks/apartments/useGetApartments";
 import { filterApartments } from "../../common/filterApartments";
-import { ApartmentType } from "../../types/ApartmentType";
 import { useFilters } from "../../context/FiltersContext/FiltersContext";
 import { ScrollView } from "react-native-gesture-handler";
 import { useGetUserById } from "../../hooks/users/useGetUserById";

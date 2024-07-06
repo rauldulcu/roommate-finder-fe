@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import { LocationType } from "../../types/LocationType";
 import { postLocation } from "../../services/locations/postLocation";
+import { LocationType } from "../../types";
 
 export const useCreateLocation = () => {
   const {
