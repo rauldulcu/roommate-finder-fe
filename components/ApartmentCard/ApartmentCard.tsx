@@ -21,7 +21,7 @@ const ApartmentCard: React.FC<ApartmentCardProps> = ({ apartment }) => {
   const { loggedUser } = useUser();
 
   const { isApartmentSaved, isApartmentSavedLoading } = useIsApartmentSaved(
-    1,
+    loggedUser!.id,
     apartment.id
   );
   const { saveApartment } = useSaveApartment(loggedUser!.id, apartment.id);

@@ -10,7 +10,6 @@ import * as Location from "expo-location";
 import {
   View,
   Text,
-  StyleSheet,
   ActivityIndicator,
   Alert,
   BackHandler,
@@ -26,7 +25,12 @@ import { useGetUserById } from "../../hooks/users/useGetUserById";
 import { sortApartments } from "../../common/calculateScore";
 import { styles } from "./styles";
 import { useUser } from "../../context/UserContext/UserContext";
-import { useFocusEffect } from "@react-navigation/native";
+import {
+  NavigationProp,
+  useFocusEffect,
+  useNavigation,
+} from "@react-navigation/native";
+import { StackParamList } from "../../App";
 
 type RegionType = {
   latitude: number;
@@ -35,7 +39,8 @@ type RegionType = {
   longitudeDelta: number;
 };
 
-const HomeScreen: React.FC<NavigationProps<"Home">> = ({ navigation }) => {
+const HomeScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
   const { filters } = useFilters();
   const { loggedUser, loading } = useUser();
   const [filteredApartments, setFilteredApartments] = useState<
@@ -181,7 +186,7 @@ const HomeScreen: React.FC<NavigationProps<"Home">> = ({ navigation }) => {
 
   return region.latitude !== 0 ? (
     <View style={{ flex: 1 }}>
-      <Navigation navigation={navigation} />
+      <Navigation />
       <MapView
         style={{ width: "100%", height: "100%" }}
         region={region}

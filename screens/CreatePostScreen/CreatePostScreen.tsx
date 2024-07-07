@@ -17,6 +17,8 @@ import * as ImagePicker from "expo-image-picker";
 import { uploadImage } from "../../common/uploadImage";
 import { styles } from "./styles";
 import { useUser } from "../../context/UserContext/UserContext";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { StackParamList } from "../../App";
 
 export type CreatePostScreenValues = {
   title: string;
@@ -30,9 +32,9 @@ export type CreatePostScreenValues = {
   imageURLs?: string[];
 };
 
-const CreatePostScreen: React.FC<NavigationProps<"CreatePost">> = ({
-  navigation,
-}) => {
+const CreatePostScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
+
   const [selectedZone, setSelectedZone] = useState<string | null>(null);
   const [selectedUtilities, setSelectedUtilities] = useState<string[]>([]);
   const [apartmentLocation, setApartmentLocation] = useState<Omit<

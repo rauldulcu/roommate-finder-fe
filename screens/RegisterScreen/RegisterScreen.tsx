@@ -16,10 +16,12 @@ import { dateToISO } from "../../common/formatDate";
 import { useCreateUser } from "../../hooks/users/useCreateUser";
 import * as ImagePicker from "expo-image-picker";
 import { uploadImage } from "../../common/uploadImage";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { StackParamList } from "../../App";
 
-const RegisterScreen: React.FC<NavigationProps<"Register">> = ({
-  navigation,
-}) => {
+const RegisterScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
+
   const [selectedOccupation, setSelectedOccupation] = useState<string>("");
   const [selectedHobbies, setSelectedHobbies] = useState<string[]>([]);
   const [avatarURL, setAvatarURL] = useState<string | null>(null);

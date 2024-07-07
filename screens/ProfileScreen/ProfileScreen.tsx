@@ -5,7 +5,6 @@ import {
   View,
   ActivityIndicator,
 } from "react-native";
-import { NavigationProps } from "../../types";
 import { ScrollView } from "react-native-gesture-handler";
 import { useGetUserById } from "../../hooks/users/useGetUserById";
 import { formatDate } from "../../common/formatDate";
@@ -13,10 +12,12 @@ import { utilityIconMapping } from "../../common/UtilityMapping";
 import { UtilityBadge } from "../../components";
 import { styles } from "./styles";
 import { useUser } from "../../context/UserContext/UserContext";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { StackParamList } from "../../App";
 
-const ProfileScreen: React.FC<NavigationProps<"Profile">> = ({
-  navigation,
-}) => {
+const ProfileScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
+
   const { loggedUser, loading } = useUser();
 
   const { user, userError, userLoading, refetch } = useGetUserById(

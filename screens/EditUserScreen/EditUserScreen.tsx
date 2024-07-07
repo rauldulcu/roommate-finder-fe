@@ -25,10 +25,12 @@ import { uploadImage } from "../../common/uploadImage";
 import { useDeleteUser } from "../../hooks/users/useDeleteUser";
 import { styles } from "./styles";
 import { useUser } from "../../context/UserContext/UserContext";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { StackParamList } from "../../App";
 
-const EditUserScreen: React.FC<NavigationProps<"EditProfile">> = ({
-  navigation,
-}) => {
+const EditUserScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
+
   const [selectedOccupation, setSelectedOccupation] = useState<string | null>(
     ""
   );

@@ -6,10 +6,12 @@ import { Divider, Icon } from "@rneui/base";
 import { NavigationProps } from "../../types";
 import { ScrollView } from "react-native-gesture-handler";
 import { FiltersComponent } from "../../components";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { StackParamList } from "../../App";
 
-const FiltersScreen: React.FC<NavigationProps<"Filters">> = ({
-  navigation,
-}) => {
+const FiltersScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
+
   const snapPoints = useMemo(() => ["75%"], []);
 
   return (

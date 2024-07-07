@@ -11,13 +11,17 @@ import { useLoginUser } from "../../hooks/users/useLoginUser";
 import { Icon, Input } from "@rneui/base";
 import { styles as inputStyle } from "../../components/PrimaryInput/styles";
 import { useUser } from "../../context/UserContext/UserContext";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { StackParamList } from "../../App";
 
 type LoginRequestType = {
   email: string;
   password: string;
 };
 
-const LoginScreen: React.FC<NavigationProps<"Login">> = ({ navigation }) => {
+const LoginScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
+
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 

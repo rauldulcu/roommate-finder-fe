@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { Avatar, Header } from "@rneui/base";
-import { NavigationProps } from "../../types";
 import DrawerComponent from "../DrawerContent/DrawerContent";
 import { useGetUserById } from "../../hooks/users/useGetUserById";
 import { useUser } from "../../context/UserContext/UserContext";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { StackParamList } from "../../App";
 
-const Navigation: React.FC<NavigationProps<"Home">> = ({ navigation }) => {
+const Navigation: React.FC = () => {
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
+
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleDrawer = () => {

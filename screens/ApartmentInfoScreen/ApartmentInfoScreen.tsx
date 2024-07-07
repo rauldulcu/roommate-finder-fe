@@ -21,15 +21,18 @@ import { ScrollView } from "react-native-gesture-handler";
 import { useDeleteApartment } from "../../hooks/apartments/useDeleteApartment";
 import { styles } from "./styles";
 import { useUser } from "../../context/UserContext/UserContext";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { StackParamList } from "../../App";
 
 interface CarouselItem {
   imageURL: string;
 }
 
 const ApartmentInfoScreen: React.FC<NavigationProps<"ApartmentInfo">> = ({
-  navigation,
   route,
 }) => {
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
+
   const apartmentId = route!.params.apartmentId;
   const { apartment, apartmentError, apartmentLoading } =
     useGetApartmentById(apartmentId);
