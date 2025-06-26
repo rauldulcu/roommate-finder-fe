@@ -9,7 +9,7 @@ export const filterApartments = (
   const parseFilters = (range: string) => {
     if (range.includes("+")) {
       const min = Number(range.replace("+", ""));
-      return { min, max: Infinity };
+      return { min, max: 5000 };
     }
     const [min, max] = range.split("-").map(Number);
     return { min, max };
@@ -36,8 +36,8 @@ export const filterApartments = (
             calculateYearsFromTimestamp(apartment.owner.dateOfBirth) <= max
           );
         })) &&
-      // (!filters.genderFilters.length ||
-      //   filters.genderFilters.includes(apartment.owner.gender)) &&
+      (!filters.genderFilters.length ||
+        filters.genderFilters.includes(apartment.owner.gender)) &&
       (!filters.hobbyFilters.length ||
         filters.hobbyFilters.some((hobby) =>
           apartment.owner.hobbies.includes(hobby)

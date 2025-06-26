@@ -1,8 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteUser } from "../../services/users/deleteUser";
+import { useUser } from "../../context/UserContext/UserContext";
 
 export const useDeleteUser = () => {
   const queryClient = useQueryClient();
+  const { handleLogout } = useUser();
 
   const {
     data: deletedUser,
@@ -14,6 +16,7 @@ export const useDeleteUser = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.invalidateQueries({ queryKey: ["apartments"] });
+      handleLogout();
     },
   });
 

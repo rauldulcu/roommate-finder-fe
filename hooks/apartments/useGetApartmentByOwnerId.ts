@@ -6,10 +6,11 @@ export const useGetApartmentByOwnerId = (ownerId: number) => {
     data: apartment,
     error: apartmentError,
     isLoading: apartmentLoading,
+    refetch,
   } = useQuery({
-    queryKey: ["getApartment", ownerId],
+    queryKey: ["getApartmentByOwner", ownerId],
     queryFn: () => getApartmentByOwnerId(ownerId),
   });
 
-  return { apartment, apartmentError, apartmentLoading };
+  return { apartment, apartmentError, apartmentLoading, refetch };
 };

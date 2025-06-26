@@ -148,7 +148,6 @@ const EditUserScreen: React.FC = () => {
   const handleDelete = () => {
     deleteUserId(loggedUser!.id);
     setShowModal(false);
-    handleLogout();
     navigation.navigate("Welcome");
   };
 

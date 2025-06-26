@@ -16,7 +16,7 @@ import {
 } from "react-native";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { ApartmentCard, MapMarker, Navigation } from "../../components";
-import { ApartmentType, NavigationProps } from "../../types";
+import { ApartmentType } from "../../types";
 import { useGetApartments } from "../../hooks/apartments/useGetApartments";
 import { filterApartments } from "../../common/filterApartments";
 import { useFilters } from "../../context/FiltersContext/FiltersContext";
@@ -137,30 +137,21 @@ const HomeScreen: React.FC = () => {
     const northEastLng = longitude + longitudeDelta / 2;
     const southWestLng = longitude - longitudeDelta / 2;
 
-    let filteredMapApartments;
+    const isWithinRegion = (apartment: ApartmentType) => {
+      const apartmentLat = apartment.location.latitude;
+      const apartmentLng = apartment.location.longitude;
+      return (
+        apartmentLat >= southWestLat &&
+        apartmentLat <= northEastLat &&
+        apartmentLng >= southWestLng &&
+        apartmentLng <= northEastLng
+      );
+    };
 
-    filteredMapApartments =
+    let filteredMapApartments =
       filters && Object.values(filters).some((array) => array.length > 0)
-        ? filteredApartments?.filter((apartment) => {
-            const apartmentLat = apartment.location.latitude;
-            const apartmentLng = apartment.location.longitude;
-            return (
-              apartmentLat >= southWestLat &&
-              apartmentLat <= northEastLat &&
-              apartmentLng >= southWestLng &&
-              apartmentLng <= northEastLng
-            );
-          })
-        : apartments?.filter((apartment) => {
-            const apartmentLat = apartment.location.latitude;
-            const apartmentLng = apartment.location.longitude;
-            return (
-              apartmentLat >= southWestLat &&
-              apartmentLat <= northEastLat &&
-              apartmentLng >= southWestLng &&
-              apartmentLng <= northEastLng
-            );
-          });
+        ? filteredApartments?.filter(isWithinRegion)
+        : apartments?.filter(isWithinRegion);
 
     if (user && filteredMapApartments) {
       const sortedApartments = sortApartments(user, filteredMapApartments);
@@ -239,7 +230,7 @@ const HomeScreen: React.FC = () => {
     </View>
   ) : (
     <View style={styles.centeredView}>
-      <Text>Loading...</Text>
+      <ActivityIndicator size="large" color="#0000ff" />
     </View>
   );
 };

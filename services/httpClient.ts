@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from "axios";
+import { API_BASE_URL } from "../common/constants";
 
 type Api = {
   base: AxiosInstance;
@@ -8,7 +9,7 @@ const HTTP_CLIENT_TIMEOUT = 3000;
 
 const HttpClient: Api = {
   base: axios.create({
-    baseURL: "http://192.168.0.201:8080/api",
+    baseURL: API_BASE_URL,
     timeout: HTTP_CLIENT_TIMEOUT,
   }),
 };

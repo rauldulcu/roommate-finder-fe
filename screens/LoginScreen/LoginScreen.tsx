@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { View, Image } from "react-native";
+import { View, Image, ActivityIndicator } from "react-native";
 import { Button, Text } from "@rneui/themed";
 import { PrimaryButton, PrimaryInput } from "../../components";
-import { NavigationProps } from "../../types";
 import { styles } from "./styles";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, set, useForm } from "react-hook-form";
 import { emailValidator } from "./validators/emailValidator";
 import { passwordValidator } from "./validators/passwordValidator";
 import { useLoginUser } from "../../hooks/users/useLoginUser";
@@ -24,7 +23,7 @@ const LoginScreen: React.FC = () => {
 
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-
+  const [loading, setLoading] = useState<boolean>(false);
   const { login, loginError } = useLoginUser();
   const { refetchUser } = useUser();
   const {
@@ -41,17 +40,26 @@ const LoginScreen: React.FC = () => {
   const onSubmit = (data: LoginRequestType) => {
     setEmailError(emailValidator(data.email));
     setPasswordError(passwordValidator(data.password));
-
+    setLoading(true);
     login(
       { username: data.email, password: data.password },
       {
         onSuccess: async () => {
           await refetchUser();
+          setLoading(false);
           navigation.navigate("Home");
         },
       }
     );
   };
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>

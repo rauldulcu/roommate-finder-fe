@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   Image,
   Dimensions,
   TouchableOpacity,
@@ -118,7 +117,8 @@ const ApartmentInfoScreen: React.FC<NavigationProps<"ApartmentInfo">> = ({
         >
           <Icon name="arrow-back" type="material" color="black" size={30} />
         </TouchableOpacity>
-        {apartment.owner.id === loggedUser?.id && (
+        {(apartment.owner.id === loggedUser?.id ||
+          loggedUser?.admin === true) && (
           <TouchableOpacity style={styles.optionButton} onPress={toggleOptions}>
             <Icon name="more-vert" type="material" color="black" size={30} />
           </TouchableOpacity>

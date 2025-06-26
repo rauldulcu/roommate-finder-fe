@@ -3,7 +3,7 @@ import HttpClient from "../httpClient";
 export const deleteUser = async (id: number) => {
   try {
     const response = await HttpClient.base.delete(`/users/${id}`);
-    if (response.status === 204) {
+    if (response.status === 304) {
       return response.data;
     }
   } catch (error) {

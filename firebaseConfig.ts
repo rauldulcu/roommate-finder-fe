@@ -1,15 +1,22 @@
 import { initializeApp } from "firebase/app";
 import { getStorage } from "firebase/storage";
 import { getFirestore } from "firebase/firestore";
+import {
+  FIREBASE_API_KEY,
+  FIREBASE_APP_ID,
+  FIREBASE_MEASUREMENT_ID,
+  FIREBASE_MESSAGING_SENDER_ID,
+  FIREBASE_PROJECT_ID,
+} from "./common/constants";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBf6XbDkKvgzLniWqvdaM6-iE4QVEJZUfs",
-  authDomain: "roommate-finder-1396d.firebaseapp.com",
-  projectId: "roommate-finder-1396d",
-  storageBucket: "roommate-finder-1396d.appspot.com",
-  messagingSenderId: "473356757580",
-  appId: "1:473356757580:web:71e3d12e46753698d9a2e9",
-  measurementId: "G-0C13LNF8BW",
+  apiKey: FIREBASE_API_KEY,
+  authDomain: `${FIREBASE_PROJECT_ID}.firebaseapp.com`,
+  projectId: FIREBASE_PROJECT_ID,
+  storageBucket: `${FIREBASE_PROJECT_ID}.appspot.com`,
+  messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
+  appId: FIREBASE_APP_ID,
+  measurementId: FIREBASE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);

@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { View, Image, Alert, TouchableOpacity } from "react-native";
+import {
+  View,
+  Image,
+  Alert,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import { Button, Input, Text } from "@rneui/themed";
 import {
   DateInput,
@@ -7,7 +13,7 @@ import {
   PrimaryButton,
   PrimaryInput,
 } from "../../components";
-import { NavigationProps, UserType } from "../../types";
+import { UserType } from "../../types";
 import { styles } from "./styles";
 import { styles as inputStyle } from "../../components/PrimaryInput/styles";
 import { Controller, useForm } from "react-hook-form";
@@ -23,12 +29,18 @@ const RegisterScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp<StackParamList>>();
 
   const [selectedOccupation, setSelectedOccupation] = useState<string>("");
+  const [selectedGender, setSelectedGender] = useState<string>("");
   const [selectedHobbies, setSelectedHobbies] = useState<string[]>([]);
   const [avatarURL, setAvatarURL] = useState<string | null>(null);
   const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleOccupationSelect = (value: string) => {
     setSelectedOccupation(value);
+  };
+
+  const handleGenderSelect = (value: string) => {
+    setSelectedGender(value);
   };
 
   const handleHobbySelect = (value: string) => {
@@ -94,6 +106,8 @@ const RegisterScreen: React.FC = () => {
   };
 
   const onSubmit = async (data: UserType) => {
+    setLoading(true);
+
     let imageURL;
     if (avatarURL) {
       imageURL = await uploadImage(avatarURL);
@@ -101,6 +115,7 @@ const RegisterScreen: React.FC = () => {
     data.dateOfBirth = dateToISO(data.dateOfBirth);
     data.hobbies = selectedHobbies;
     data.occupation = selectedOccupation;
+    data.gender = selectedGender;
     data.avatarURL = imageURL ? imageURL : undefined;
     createUser(data, {
       onSuccess: () => {
@@ -112,10 +127,10 @@ const RegisterScreen: React.FC = () => {
     });
   };
 
-  if (createUserPending) {
+  if (createUserPending || loading) {
     return (
-      <View style={{ flex: 1, alignContent: "center" }}>
-        <Text>Loading apartment info..</Text>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
   }
@@ -186,18 +201,6 @@ const RegisterScreen: React.FC = () => {
             />
           )}
         />
-        {/* <Controller
-          name="name"
-          control={control}
-          rules={{ required: true }}
-          render={({ field: { onChange, value } }) => (
-            <PrimaryInput
-              placeholder="University"
-              onChange={(inputValue) => onChange(inputValue)}
-              value={value}
-            />
-          )}
-        /> */}
         <Controller
           name="email"
           control={control}
@@ -298,6 +301,24 @@ const RegisterScreen: React.FC = () => {
           />
         </View>
 
+        <Text style={styles.sectionTitle}>Select your gender</Text>
+        <View style={styles.tagContainer}>
+          <FilterTag
+            value="FEMALE"
+            label="Female"
+            icon="woman"
+            selected={selectedGender === "FEMALE"}
+            onSelect={handleGenderSelect}
+          />
+          <FilterTag
+            value="MALE"
+            label="Male"
+            icon="man"
+            selected={selectedGender === "MALE"}
+            onSelect={handleGenderSelect}
+          />
+        </View>
+
         <Text style={styles.sectionTitle}>Select your occupation</Text>
         <View style={styles.tagContainer}>
           <FilterTag
@@ -342,7 +363,9 @@ const RegisterScreen: React.FC = () => {
           <PrimaryButton
             title="Register"
             onPress={handleSubmit(onSubmit)}
-            disabled={!isValid || selectedOccupation === ""}
+            disabled={
+              !isValid || selectedOccupation === "" || selectedGender === ""
+            }
           />
         </View>
 

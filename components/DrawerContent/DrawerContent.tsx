@@ -1,5 +1,5 @@
-import React from "react";
-import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
+import React, { useEffect } from "react";
+import { View, TouchableOpacity, Text } from "react-native";
 import { Icon } from "@rneui/base";
 import Drawer from "react-native-side-drawer";
 import { NavigationProp } from "@react-navigation/native";
@@ -7,6 +7,7 @@ import { useGetApartmentByOwnerId } from "../../hooks/apartments/useGetApartment
 import { styles } from "./styles";
 import { useUser } from "../../context/UserContext/UserContext";
 import { useFilters } from "../../context/FiltersContext/FiltersContext";
+import { useGetApartments } from "../../hooks/apartments/useGetApartments";
 
 type DrawerProps = {
   navigation: NavigationProp<any>;
@@ -16,12 +17,19 @@ type DrawerProps = {
 
 const DrawerComponent: React.FC<DrawerProps> = ({
   navigation,
-  isOpen,
-  toggleDrawer,
+  isOpen = false,
+  toggleDrawer = () => {},
 }) => {
   const { clearFilters } = useFilters();
   const { loggedUser, handleLogout } = useUser();
-  const { apartment } = useGetApartmentByOwnerId(loggedUser!.id);
+  const { apartment, refetch } = useGetApartmentByOwnerId(loggedUser!.id);
+  const { apartments } = useGetApartments();
+
+  useEffect(() => {
+    if (isOpen) {
+      refetch();
+    }
+  }, [isOpen, refetch]);
 
   const drawerContent = () => (
     <View style={styles.drawerContent}>
@@ -32,6 +40,7 @@ const DrawerComponent: React.FC<DrawerProps> = ({
         onPress={() => {
           navigation.navigate("Profile");
           toggleDrawer();
+          refetch();
         }}
       >
         <Text style={styles.drawerItem}>View Profile</Text>
@@ -44,6 +53,7 @@ const DrawerComponent: React.FC<DrawerProps> = ({
       >
         <Text style={styles.drawerItem}>Saved</Text>
       </TouchableOpacity>
+
       {apartment && (
         <TouchableOpacity
           onPress={() => {

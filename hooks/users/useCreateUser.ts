@@ -13,7 +13,7 @@ export const useCreateUser = () => {
   } = useMutation({
     mutationKey: ["updateUser"],
     mutationFn: (user: UserType) => postUser(user),
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["getUser"] });
     },
     onError: (error) => {

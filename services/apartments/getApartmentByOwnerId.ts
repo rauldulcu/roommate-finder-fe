@@ -1,13 +1,18 @@
 import { ApartmentType } from "../../types";
 import HttpClient from "../httpClient";
 
-export const getApartmentByOwnerId = async (ownerId: number) => {
+export const getApartmentByOwnerId = async (
+  ownerId: number
+): Promise<ApartmentType | null> => {
   try {
-    const response = await HttpClient.base.get<ApartmentType>(
+    const response = await HttpClient.base.get<ApartmentType | null>(
       `/apartments/owner/${ownerId}`
     );
     if (response.status === 200) {
       return response.data;
+    }
+    if (response.status === 204) {
+      return null;
     }
   } catch (error) {
     console.log(error);

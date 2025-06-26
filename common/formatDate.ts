@@ -13,17 +13,15 @@ export const dateToISO = (dateStr: string) => {
   }
 
   const day = parseInt(parts[0], 10);
-  const month = parseInt(parts[1], 10) - 1; // JS months are 0-indexed
+  const month = parseInt(parts[1], 10) - 1;
   const year = parseInt(parts[2], 10);
 
   if (month < 0 || month > 11 || day < 1 || day > 31) {
     throw new Error("Date values are out of bounds");
   }
 
-  // Create a Date object set to UTC
   const date = new Date(Date.UTC(year, month, day));
 
-  // Validate the date to avoid setting wrong date for invalid input
   if (
     date.getUTCFullYear() !== year ||
     date.getUTCMonth() !== month ||

@@ -10,4 +10,5 @@ export type UserType = {
   gender: string;
   occupation: string;
   avatarURL?: string | null;
+  admin: boolean;
 };

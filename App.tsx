@@ -18,6 +18,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FiltersProvider } from "./context/FiltersContext/FiltersContext";
 import { UserProvider } from "./context/UserContext/UserContext";
+import { LogBox } from "react-native";
 
 export type StackParamList = {
   Welcome: undefined;
@@ -34,6 +35,10 @@ export type StackParamList = {
 };
 
 const Stack = createNativeStackNavigator<StackParamList>();
+
+LogBox.ignoreLogs([
+  "Warning: MenuDrawer: Support for defaultProps will be removed from function components in a future major release. Use JavaScript default parameters instead.",
+]);
 
 export default function App() {
   const queryClient = new QueryClient();

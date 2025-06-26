@@ -41,7 +41,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const handleLogout = async () => {
     try {
-      await logoutUser();
+      // await logoutUser();
       setLoggedUser(undefined);
     } catch (error) {
       console.error("Failed to log out:", error);

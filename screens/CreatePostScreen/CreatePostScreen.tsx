@@ -1,9 +1,20 @@
 import React, { useState, useMemo, useRef } from "react";
-import { Image, View, Text, TouchableOpacity, Alert } from "react-native";
-import { FilterTag, PrimaryButton, PrimaryInput } from "../../components";
+import {
+  Image,
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
+import {
+  ApartmentCard,
+  FilterTag,
+  PrimaryButton,
+  PrimaryInput,
+} from "../../components";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { Divider, Icon } from "@rneui/base";
-import { NavigationProps } from "../../types";
 import { ScrollView } from "react-native-gesture-handler";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -19,6 +30,8 @@ import { styles } from "./styles";
 import { useUser } from "../../context/UserContext/UserContext";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { StackParamList } from "../../App";
+import { AUTOCOMPLETE_API_KEY } from "../../common/constants";
+import { useGetApartmentByOwnerId } from "../../hooks/apartments/useGetApartmentByOwnerId";
 
 export type CreatePostScreenValues = {
   title: string;
@@ -43,11 +56,14 @@ const CreatePostScreen: React.FC = () => {
   > | null>(null);
   const [files, setFiles] = useState<string[]>([]);
   const [error, setError] = useState<string>("");
+  const [uploading, setUploading] = useState(false);
 
   const snapPoints = useMemo(() => ["75%"], []);
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   const { loggedUser, loading } = useUser();
+  const { apartment } = useGetApartmentByOwnerId(loggedUser!.id);
+
   const { createLocation } = useCreateLocation();
 
   const { createApartment, createApartmentPending } = useCreateApartment();
@@ -128,6 +144,7 @@ const CreatePostScreen: React.FC = () => {
   const onSubmit = async (data: CreatePostScreenValues) => {
     try {
       let imageUrls: string[];
+      setUploading(true);
       if (files) {
         const imageUploadPromises = files.map((file) => uploadImage(file));
         imageUrls = (await Promise.all(imageUploadPromises)) as string[];
@@ -154,6 +171,7 @@ const CreatePostScreen: React.FC = () => {
                 imageURLs: imageUrls,
               };
               createApartment(apartmentData);
+              setUploading(false);
               navigation.navigate("Home");
             },
           }
@@ -164,10 +182,10 @@ const CreatePostScreen: React.FC = () => {
     }
   };
 
-  if (createApartmentPending || loading) {
+  if (createApartmentPending || loading || uploading) {
     return (
-      <View style={{ flex: 1, alignContent: "center" }}>
-        <Text>Loading apartment info..</Text>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
   }
@@ -200,238 +218,240 @@ const CreatePostScreen: React.FC = () => {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.formContainer}>
-            <Text style={styles.header}>Tell us about your place</Text>
+            <Text style={styles.header}>
+              {apartment
+                ? "Sorry, you can only have one apartment post"
+                : "Tell us about your place"}
+            </Text>
             <Divider />
-
-            <Text style={styles.label}>Title</Text>
-            <Controller
-              name="title"
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { onChange, value } }) => (
-                <PrimaryInput
-                  placeholder="Enter the title"
-                  onChange={(inputValue) => onChange(inputValue)}
-                  value={value}
-                />
-              )}
-            />
-
-            <Text style={styles.label}>Subtitle</Text>
-            <Controller
-              name="subtitle"
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { onChange, value } }) => (
-                <PrimaryInput
-                  placeholder="Enter the subtitle"
-                  onChange={(inputValue) => onChange(inputValue)}
-                  value={value}
-                />
-              )}
-            />
-
-            <Text style={styles.label}>Address</Text>
-            <View>
-              <GooglePlacesAutocomplete
-                fetchDetails={true}
-                placeholder="Search for an address"
-                onPress={(data, details) => {
-                  details && handleLocationSelect(details);
-                }}
-                query={{
-                  key: "AIzaSyCb94w_cBkco15e7u0uIz2F_bD51zswzxM",
-                  language: "en",
-                  location: `${46.7712},${23.6236}`,
-                  radius: 5000,
-                  strictbounds: true,
-                }}
-                styles={{
-                  textInputContainer: styles.inputContainer,
-                  textInput: styles.inputContainerStyle,
-                }}
-                disableScroll={true}
-                onFail={(error) => console.error(error)}
-              />
-            </View>
-
-            <Text style={styles.label}>Description</Text>
-            <Controller
-              name="description"
-              control={control}
-              rules={{ required: true, min: 1 }}
-              render={({ field: { onChange, value } }) => (
-                <PrimaryInput
-                  placeholder="Enter a short description"
-                  onChange={(inputValue) => onChange(inputValue)}
-                  value={value}
-                  numOfLines={5}
-                />
-              )}
-            />
-
-            <Text style={styles.label}>Price</Text>
-            <Controller
-              name="price"
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { onChange, value } }) => (
-                <PrimaryInput
-                  placeholder="Price"
-                  onChange={(inputValue) => onChange(inputValue)}
-                  value={value}
-                  rightIcon="euro"
-                  keyboardType="numeric"
-                />
-              )}
-            />
-
-            <Text style={styles.label}>Zone (Single Selection)</Text>
-            <View style={styles.tagContainer}>
-              <FilterTag
-                value="MANASTUR"
-                label="Mănăștur"
-                icon="map"
-                selected={selectedZone === "MANASTUR"}
-                onSelect={handleZoneSelect}
-              />
-              <FilterTag
-                value="MARASTI"
-                label="Mărăști"
-                icon="map"
-                selected={selectedZone === "MARASTI"}
-                onSelect={handleZoneSelect}
-              />
-              <FilterTag
-                value="GRIGORESCU"
-                label="Grigorescu"
-                icon="map"
-                selected={selectedZone === "GRIGORESCU"}
-                onSelect={handleZoneSelect}
-              />
-              <FilterTag
-                value="ZORILOR"
-                label="Zorilor"
-                icon="map"
-                selected={selectedZone === "ZORILOR"}
-                onSelect={handleZoneSelect}
-              />
-              <FilterTag
-                value="CENTRU"
-                label="Centru"
-                icon="map"
-                selected={selectedZone === "CENTRU"}
-                onSelect={handleZoneSelect}
-              />
-              <FilterTag
-                value="GRUIA"
-                label="Gruia"
-                icon="map"
-                selected={selectedZone === "GRUIA"}
-                onSelect={handleZoneSelect}
-              />
-              <FilterTag
-                value="GHEORGHENI"
-                label="Gheorgheni"
-                icon="map"
-                selected={selectedZone === "GHEORGHENI"}
-                onSelect={handleZoneSelect}
-              />
-            </View>
-
-            <Text style={styles.label}>Utilities (Multiple Selection)</Text>
-            <View style={styles.tagContainer}>
-              <FilterTag
-                value="SMARTTV"
-                label="Smart TV"
-                icon="tv"
-                selected={isUtilitySelected("SMARTTV")}
-                onSelect={handleUtilitySelect}
-              />
-              <FilterTag
-                value="WIFI"
-                label="WiFi"
-                icon="wifi"
-                selected={isUtilitySelected("WIFI")}
-                onSelect={handleUtilitySelect}
-              />
-              <FilterTag
-                value="PETFRIENDLY"
-                label="Pet Friendly"
-                icon="pets"
-                selected={isUtilitySelected("PETFRIENDLY")}
-                onSelect={handleUtilitySelect}
-              />
-              <FilterTag
-                value="AIRCONDITIONED"
-                label="Air Conditioned"
-                icon="ac-unit"
-                selected={isUtilitySelected("AIRCONDITIONED")}
-                onSelect={handleUtilitySelect}
-              />
-              <FilterTag
-                value="DISHWASHER"
-                label="Dishwasher"
-                icon="local-laundry-service"
-                selected={isUtilitySelected("DISHWASHER")}
-                onSelect={handleUtilitySelect}
-              />
-              <FilterTag
-                value="MICROWAVE"
-                label="Microwave"
-                icon="microwave"
-                selected={isUtilitySelected("MICROWAVE")}
-                onSelect={handleUtilitySelect}
-              />
-            </View>
-
-            <TouchableOpacity onPress={pickImages}>
-              <Text style={styles.label}>Choose Images</Text>
-            </TouchableOpacity>
-            {files ? (
-              <View style={{ flex: 1, flexDirection: "row", flexWrap: "wrap" }}>
-                {files.map((file, index) => (
-                  <View key={index} style={styles.imageContainer}>
-                    <Image
-                      source={{ uri: file }}
-                      style={{
-                        width: 100,
-                        height: 100,
-                        borderRadius: 8,
-                        margin: 5,
-                      }}
-                    />
-                    <TouchableOpacity
-                      style={styles.deleteButton}
-                      onPress={() => removeImage(index)}
-                    >
-                      <Icon
-                        name="close"
-                        type="material"
-                        color="white"
-                        size={15}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                ))}
-              </View>
+            {apartment ? (
+              <ApartmentCard apartment={apartment} />
             ) : (
-              <Text>{error}</Text>
+              <View>
+                <Text style={styles.label}>Title</Text>
+                <Controller
+                  name="title"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field: { onChange, value } }) => (
+                    <PrimaryInput
+                      placeholder="Enter the title"
+                      onChange={(inputValue) => onChange(inputValue)}
+                      value={value}
+                    />
+                  )}
+                />
+                <Text style={styles.label}>Subtitle</Text>
+                <Controller
+                  name="subtitle"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field: { onChange, value } }) => (
+                    <PrimaryInput
+                      placeholder="Enter the subtitle"
+                      onChange={(inputValue) => onChange(inputValue)}
+                      value={value}
+                    />
+                  )}
+                />
+                <Text style={styles.label}>Address</Text>
+                <View>
+                  <GooglePlacesAutocomplete
+                    fetchDetails={true}
+                    placeholder="Search for an address"
+                    onPress={(data, details) => {
+                      details && handleLocationSelect(details);
+                    }}
+                    query={{
+                      key: AUTOCOMPLETE_API_KEY,
+                      language: "en",
+                      location: `${46.7712},${23.6236}`,
+                      radius: 7500,
+                      strictbounds: true,
+                    }}
+                    styles={{
+                      textInputContainer: styles.inputContainer,
+                      textInput: styles.inputContainerStyle,
+                    }}
+                    disableScroll={true}
+                    onFail={(error) => console.error(error)}
+                  />
+                </View>
+                <Text style={styles.label}>Description</Text>
+                <Controller
+                  name="description"
+                  control={control}
+                  rules={{ required: true, min: 1 }}
+                  render={({ field: { onChange, value } }) => (
+                    <PrimaryInput
+                      placeholder="Enter a short description"
+                      onChange={(inputValue) => onChange(inputValue)}
+                      value={value}
+                      numOfLines={5}
+                    />
+                  )}
+                />
+                <Text style={styles.label}>Price</Text>
+                <Controller
+                  name="price"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field: { onChange, value } }) => (
+                    <PrimaryInput
+                      placeholder="Price"
+                      onChange={(inputValue) => onChange(inputValue)}
+                      value={value}
+                      rightIcon="euro"
+                      keyboardType="numeric"
+                    />
+                  )}
+                />
+                <Text style={styles.label}>Zone (Single Selection)</Text>
+                <View style={styles.tagContainer}>
+                  <FilterTag
+                    value="MANASTUR"
+                    label="Mănăștur"
+                    icon="map"
+                    selected={selectedZone === "MANASTUR"}
+                    onSelect={handleZoneSelect}
+                  />
+                  <FilterTag
+                    value="MARASTI"
+                    label="Mărăști"
+                    icon="map"
+                    selected={selectedZone === "MARASTI"}
+                    onSelect={handleZoneSelect}
+                  />
+                  <FilterTag
+                    value="GRIGORESCU"
+                    label="Grigorescu"
+                    icon="map"
+                    selected={selectedZone === "GRIGORESCU"}
+                    onSelect={handleZoneSelect}
+                  />
+                  <FilterTag
+                    value="ZORILOR"
+                    label="Zorilor"
+                    icon="map"
+                    selected={selectedZone === "ZORILOR"}
+                    onSelect={handleZoneSelect}
+                  />
+                  <FilterTag
+                    value="CENTRU"
+                    label="Centru"
+                    icon="map"
+                    selected={selectedZone === "CENTRU"}
+                    onSelect={handleZoneSelect}
+                  />
+                  <FilterTag
+                    value="GRUIA"
+                    label="Gruia"
+                    icon="map"
+                    selected={selectedZone === "GRUIA"}
+                    onSelect={handleZoneSelect}
+                  />
+                  <FilterTag
+                    value="GHEORGHENI"
+                    label="Gheorgheni"
+                    icon="map"
+                    selected={selectedZone === "GHEORGHENI"}
+                    onSelect={handleZoneSelect}
+                  />
+                </View>
+                <Text style={styles.label}>Utilities (Multiple Selection)</Text>
+                <View style={styles.tagContainer}>
+                  <FilterTag
+                    value="SMARTTV"
+                    label="Smart TV"
+                    icon="tv"
+                    selected={isUtilitySelected("SMARTTV")}
+                    onSelect={handleUtilitySelect}
+                  />
+                  <FilterTag
+                    value="WIFI"
+                    label="WiFi"
+                    icon="wifi"
+                    selected={isUtilitySelected("WIFI")}
+                    onSelect={handleUtilitySelect}
+                  />
+                  <FilterTag
+                    value="PETFRIENDLY"
+                    label="Pet Friendly"
+                    icon="pets"
+                    selected={isUtilitySelected("PETFRIENDLY")}
+                    onSelect={handleUtilitySelect}
+                  />
+                  <FilterTag
+                    value="AIRCONDITIONED"
+                    label="Air Conditioned"
+                    icon="ac-unit"
+                    selected={isUtilitySelected("AIRCONDITIONED")}
+                    onSelect={handleUtilitySelect}
+                  />
+                  <FilterTag
+                    value="DISHWASHER"
+                    label="Dishwasher"
+                    icon="local-laundry-service"
+                    selected={isUtilitySelected("DISHWASHER")}
+                    onSelect={handleUtilitySelect}
+                  />
+                  <FilterTag
+                    value="MICROWAVE"
+                    label="Microwave"
+                    icon="microwave"
+                    selected={isUtilitySelected("MICROWAVE")}
+                    onSelect={handleUtilitySelect}
+                  />
+                </View>
+                <TouchableOpacity onPress={pickImages}>
+                  <Text style={styles.label}>Choose Images</Text>
+                </TouchableOpacity>
+                {files ? (
+                  <View
+                    style={{ flex: 1, flexDirection: "row", flexWrap: "wrap" }}
+                  >
+                    {files.map((file, index) => (
+                      <View key={index} style={styles.imageContainer}>
+                        <Image
+                          source={{ uri: file }}
+                          style={{
+                            width: 100,
+                            height: 100,
+                            borderRadius: 8,
+                            margin: 5,
+                          }}
+                        />
+                        <TouchableOpacity
+                          style={styles.deleteButton}
+                          onPress={() => removeImage(index)}
+                        >
+                          <Icon
+                            name="close"
+                            type="material"
+                            color="white"
+                            size={15}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    ))}
+                  </View>
+                ) : (
+                  <Text>{error}</Text>
+                )}
+                <Divider style={{ marginTop: 15 }} />
+                <View style={{ alignItems: "center", marginTop: 30 }}>
+                  <PrimaryButton
+                    title="Post"
+                    onPress={handleSubmit(onSubmit)}
+                    disabled={
+                      !isValid ||
+                      selectedZone === null ||
+                      apartmentLocation === null
+                    }
+                  />
+                </View>
+              </View>
             )}
-
-            <Divider style={{ marginTop: 15 }} />
-
-            <View style={{ alignItems: "center", marginTop: 30 }}>
-              <PrimaryButton
-                title="Post"
-                onPress={handleSubmit(onSubmit)}
-                disabled={
-                  !isValid ||
-                  selectedZone === null ||
-                  apartmentLocation === null
-                }
-              />
-            </View>
           </View>
         </ScrollView>
       </BottomSheet>

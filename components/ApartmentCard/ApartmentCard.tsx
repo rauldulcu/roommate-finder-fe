@@ -10,6 +10,7 @@ import { useIsApartmentSaved } from "../../hooks/apartments/useIsApartmentSaved"
 import { useSaveApartment } from "../../hooks/apartments/useSaveApartment";
 import { useUser } from "../../context/UserContext/UserContext";
 import { ApartmentType } from "../../types";
+import { useGetApartmentByOwnerId } from "../../hooks/apartments/useGetApartmentByOwnerId";
 
 type ApartmentCardProps = {
   apartment: ApartmentType;
@@ -19,7 +20,9 @@ const ApartmentCard: React.FC<ApartmentCardProps> = ({ apartment }) => {
   const navigation = useNavigation<NavigationProp<StackParamList>>();
 
   const { loggedUser } = useUser();
-
+  const { apartment: loggedUserApartment } = useGetApartmentByOwnerId(
+    loggedUser!.id
+  );
   const { isApartmentSaved, isApartmentSavedLoading } = useIsApartmentSaved(
     loggedUser!.id,
     apartment.id
@@ -58,17 +61,19 @@ const ApartmentCard: React.FC<ApartmentCardProps> = ({ apartment }) => {
           <Text style={styles.rentPrice}>{apartment.price}€/month</Text>
         </View>
       </View>
-      <TouchableOpacity
-        activeOpacity={1}
-        containerStyle={styles.bookmarkIcon}
-        onPress={handleSave}
-      >
-        <Icon
-          name={saved ? "bookmark" : "bookmark-outline"}
-          type="material"
-          color="#fff"
-        />
-      </TouchableOpacity>
+      {apartment.id !== loggedUserApartment?.id && (
+        <TouchableOpacity
+          activeOpacity={1}
+          containerStyle={styles.bookmarkIcon}
+          onPress={handleSave}
+        >
+          <Icon
+            name={saved ? "bookmark" : "bookmark-outline"}
+            type="material"
+            color="#fff"
+          />
+        </TouchableOpacity>
+      )}
       <Card.Divider />
       <PrimaryButton
         title={"View Apartment"}
